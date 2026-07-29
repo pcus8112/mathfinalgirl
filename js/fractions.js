@@ -507,7 +507,10 @@ function generateIdentifyFractionProblem() {
         </div>
 
         <div style="font-size:clamp(22px, 5vw, 32px);line-height:1.25;">
-          What fraction is shaded?
+          What fraction is shaded?<br>
+          <span style="font-size:0.7em;font-weight:normal;">
+          Example: 1/3
+          </span>
         </div>
       </div>
     `,
