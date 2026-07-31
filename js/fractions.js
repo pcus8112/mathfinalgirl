@@ -1320,11 +1320,160 @@ const fractionHelperFunctions = Object.freeze({
 });
 
 
+
 // ==================================================
 // GENERATOR 01: Identify the fraction
 // ==================================================
 
-// CODE FÜR GENERATOR 01 HIER EINFÜGEN
+registerFractionGenerator(1, {
+    title: "Identify the fraction",
+
+    createProblem() {
+
+        const possibleDenominators = [
+            2, 3, 4, 5, 6, 8, 10, 12
+        ];
+
+        const denominator = randomItem(possibleDenominators);
+
+        const numerator = randomInteger(
+            1,
+            denominator - 1
+        );
+
+        return {
+            numerator,
+            denominator,
+
+            questionText: "What fraction is shaded?",
+            exampleText: "Example: 1/3"
+        };
+    },
+
+    renderProblem(context) {
+
+        const problem = context.problem;
+        const elements = context.elements;
+
+        const visual = elements.visual;
+
+        visual.replaceChildren();
+
+        visual.style.display = "flex";
+        visual.style.justifyContent = "center";
+        visual.style.alignItems = "center";
+        visual.style.gap = "18px";
+        visual.style.flexWrap = "wrap";
+        visual.style.marginBottom = "24px";
+
+        for (
+            let part = 1;
+            part <= problem.denominator;
+            part++
+        ) {
+
+            const square = document.createElement("div");
+
+            square.style.width = "56px";
+            square.style.height = "56px";
+            square.style.borderRadius = "12px";
+            square.style.border = "4px solid #4b4b4b";
+            square.style.boxSizing = "border-box";
+
+            if (part <= problem.numerator) {
+
+                square.style.background = "#7b3f00";
+
+            } else {
+
+                square.style.background = "transparent";
+
+            }
+
+            visual.appendChild(square);
+
+        }
+
+        elements.question.textContent =
+            problem.questionText;
+
+        elements.example.textContent =
+            problem.exampleText;
+
+    },
+
+    checkAnswer(context) {
+
+        const problem = context.problem;
+
+        const parsed =
+            parseFraction(context.userAnswer);
+
+        if (!parsed) {
+
+            return {
+                correct: false,
+                message:
+                    "Please enter your answer as a fraction (Example: 1/3)."
+            };
+
+        }
+
+        const correct =
+            fractionsAreEquivalent(
+                parsed.numerator,
+                parsed.denominator,
+                problem.numerator,
+                problem.denominator
+            );
+
+        if (!correct) {
+
+            return {
+                correct: false,
+                message:
+                    "Not quite. Count the shaded parts and then count all parts."
+            };
+
+        }
+
+        const simplified =
+            simplifyFraction(
+                problem.numerator,
+                problem.denominator
+            );
+        return {
+
+            correct: true,
+
+            simplifiedAnswer:
+                formatFraction(
+                    simplified.numerator,
+                    simplified.denominator
+                )
+
+        };
+
+    },
+
+    formatCorrectFeedback(context) {
+
+        return (
+            "Correct. Simplified answer: " +
+            context.result.simplifiedAnswer
+        );
+
+    },
+
+    formatIncorrectFeedback() {
+
+        return (
+            "Not quite. Count the shaded parts and then count all parts."
+        );
+
+    }
+
+});
 
 
 
