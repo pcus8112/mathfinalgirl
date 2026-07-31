@@ -1482,8 +1482,133 @@ registerFractionGenerator(1, {
 // GENERATOR 02: Numerator or denominator
 // ==================================================
 
-// CODE FÜR GENERATOR 02 HIER EINFÜGEN
+registerFractionGenerator(2, {
+    title: "Numerator or denominator",
 
+    createProblem() {
+        const denominator = randomInteger(2, 20);
+        const numerator = randomInteger(1, denominator - 1);
+
+        const questionType = randomItem([
+            "numerator",
+            "denominator"
+        ]);
+
+        return {
+            numerator,
+            denominator,
+            questionType,
+            questionText:
+                questionType === "numerator"
+                    ? "What is the numerator?"
+                    : "What is the denominator?",
+            exampleText:
+                questionType === "numerator"
+                    ? "The numerator is the top number."
+                    : "The denominator is the bottom number."
+        };
+    },
+
+    renderProblem(context) {
+        const problem = context.problem;
+        const elements = context.elements;
+
+        elements.visual.replaceChildren();
+
+        elements.visual.style.display = "flex";
+        elements.visual.style.flexDirection = "column";
+        elements.visual.style.alignItems = "center";
+        elements.visual.style.justifyContent = "center";
+        elements.visual.style.marginBottom = "24px";
+
+        const fractionDisplay = document.createElement("div");
+
+        fractionDisplay.style.display = "inline-flex";
+        fractionDisplay.style.flexDirection = "column";
+        fractionDisplay.style.alignItems = "center";
+        fractionDisplay.style.justifyContent = "center";
+        fractionDisplay.style.fontSize = "48px";
+        fractionDisplay.style.fontWeight = "700";
+        fractionDisplay.style.lineHeight = "1.1";
+        fractionDisplay.style.minWidth = "90px";
+
+        const numeratorElement = document.createElement("div");
+        numeratorElement.textContent = problem.numerator;
+
+        const fractionLine = document.createElement("div");
+        fractionLine.style.width = "100%";
+        fractionLine.style.height = "4px";
+        fractionLine.style.background = "currentColor";
+        fractionLine.style.margin = "6px 0";
+
+        const denominatorElement = document.createElement("div");
+        denominatorElement.textContent = problem.denominator;
+
+        fractionDisplay.appendChild(numeratorElement);
+        fractionDisplay.appendChild(fractionLine);
+        fractionDisplay.appendChild(denominatorElement);
+
+        elements.visual.appendChild(fractionDisplay);
+
+        elements.question.textContent = problem.questionText;
+        elements.example.textContent = problem.exampleText;
+    },
+
+    checkAnswer(context) {
+        const problem = context.problem;
+        const normalizedAnswer = context.userAnswer.trim();
+
+        if (!/^[+-]?\d+$/.test(normalizedAnswer)) {
+            return {
+                correct: false,
+                message: "Please enter a whole number."
+            };
+        }
+
+        const userNumber = Number(normalizedAnswer);
+
+        const expectedAnswer =
+            problem.questionType === "numerator"
+                ? problem.numerator
+                : problem.denominator;
+
+        if (userNumber === expectedAnswer) {
+            return {
+                correct: true,
+                expectedAnswer: String(expectedAnswer)
+            };
+        }
+
+        if (problem.questionType === "numerator") {
+            return {
+                correct: false,
+                message:
+                    "Not quite. The numerator is the top number."
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. The denominator is the bottom number."
+        };
+    },
+
+    formatCorrectFeedback(context) {
+        return (
+            "Correct. Answer: " +
+            context.result.expectedAnswer
+        );
+    },
+
+    formatIncorrectFeedback(context) {
+        if (context.problem.questionType === "numerator") {
+            return "Not quite. The numerator is the top number.";
+        }
+
+        return "Not quite. The denominator is the bottom number.";
+    }
+});
 
 
 
