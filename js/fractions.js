@@ -1804,19 +1804,16 @@ registerFractionGenerator(4, {
             (simplifiedDenominator / gcdValue) *
             commonFactor;
 
-        const simplified =
-            simplifyFraction(
-                numerator,
-                denominator
-            );
+        const simplified = simplifyFraction(
+            numerator,
+            denominator
+        );
 
         return {
             numerator,
             denominator,
-            simplifiedNumerator:
-                simplified.numerator,
-            simplifiedDenominator:
-                simplified.denominator
+            simplifiedNumerator: simplified.numerator,
+            simplifiedDenominator: simplified.denominator
         };
     },
 
@@ -1827,16 +1824,11 @@ registerFractionGenerator(4, {
         elements.visual.replaceChildren();
 
         elements.visual.style.display = "flex";
-        elements.visual.style.justifyContent =
-            "center";
-        elements.visual.style.alignItems =
-            "center";
-        elements.visual.style.marginBottom =
-            "24px";
+        elements.visual.style.justifyContent = "center";
+        elements.visual.style.alignItems = "center";
+        elements.visual.style.marginBottom = "24px";
 
-        const fraction = document.createElement(
-            "div"
-        );
+        const fraction = document.createElement("div");
 
         fraction.style.display = "inline-flex";
         fraction.style.flexDirection = "column";
@@ -1846,23 +1838,17 @@ registerFractionGenerator(4, {
         fraction.style.lineHeight = "1.1";
         fraction.style.minWidth = "90px";
 
-        const numerator =
-            document.createElement("div");
-        numerator.textContent =
-            problem.numerator;
+        const numerator = document.createElement("div");
+        numerator.textContent = problem.numerator;
 
-        const line =
-            document.createElement("div");
+        const line = document.createElement("div");
         line.style.width = "100%";
         line.style.height = "4px";
-        line.style.background =
-            "currentColor";
+        line.style.background = "currentColor";
         line.style.margin = "6px 0";
 
-        const denominator =
-            document.createElement("div");
-        denominator.textContent =
-            problem.denominator;
+        const denominator = document.createElement("div");
+        denominator.textContent = problem.denominator;
 
         fraction.appendChild(numerator);
         fraction.appendChild(line);
@@ -1880,23 +1866,25 @@ registerFractionGenerator(4, {
     checkAnswer(context) {
         const problem = context.problem;
 
-        const answer =
-            normalizeFractionAnswer(
-                context.userAnswer
-            );
+        const answer = normalizeFractionAnswer(
+            context.userAnswer
+        );
 
         if (!answer) {
             return {
-                correct: false,
-                message:
-                    "Please enter a fraction such as 3/4."
+                correct: false
             };
         }
 
+        const simplifiedAnswer = simplifyFraction(
+            answer.numerator,
+            answer.denominator
+        );
+
         if (
-            answer.numerator ===
+            simplifiedAnswer.numerator ===
                 problem.simplifiedNumerator &&
-            answer.denominator ===
+            simplifiedAnswer.denominator ===
                 problem.simplifiedDenominator
         ) {
             return {
@@ -1909,9 +1897,7 @@ registerFractionGenerator(4, {
         }
 
         return {
-            correct: false,
-            message:
-                "Not quite. Divide the numerator and denominator by their greatest common factor."
+            correct: false
         };
     },
 
