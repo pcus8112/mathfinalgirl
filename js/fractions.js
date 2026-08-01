@@ -1779,7 +1779,155 @@ registerFractionGenerator(3, {
 // GENERATOR 04: Simplify a fraction
 // ==================================================
 
-// CODE FÜR GENERATOR 04 HIER EINFÜGEN
+registerFractionGenerator(4, {
+    title: "Simplify a fraction",
+
+    createProblem() {
+        const commonFactor = randomInteger(2, 8);
+
+        const simplifiedDenominator = randomInteger(2, 12);
+        const simplifiedNumerator = randomInteger(
+            1,
+            simplifiedDenominator - 1
+        );
+
+        const gcdValue = greatestCommonDivisor(
+            simplifiedNumerator,
+            simplifiedDenominator
+        );
+
+        const numerator =
+            (simplifiedNumerator / gcdValue) *
+            commonFactor;
+
+        const denominator =
+            (simplifiedDenominator / gcdValue) *
+            commonFactor;
+
+        const simplified =
+            simplifyFraction(
+                numerator,
+                denominator
+            );
+
+        return {
+            numerator,
+            denominator,
+            simplifiedNumerator:
+                simplified.numerator,
+            simplifiedDenominator:
+                simplified.denominator
+        };
+    },
+
+    renderProblem(context) {
+        const problem = context.problem;
+        const elements = context.elements;
+
+        elements.visual.replaceChildren();
+
+        elements.visual.style.display = "flex";
+        elements.visual.style.justifyContent =
+            "center";
+        elements.visual.style.alignItems =
+            "center";
+        elements.visual.style.marginBottom =
+            "24px";
+
+        const fraction = document.createElement(
+            "div"
+        );
+
+        fraction.style.display = "inline-flex";
+        fraction.style.flexDirection = "column";
+        fraction.style.alignItems = "center";
+        fraction.style.fontSize = "48px";
+        fraction.style.fontWeight = "700";
+        fraction.style.lineHeight = "1.1";
+        fraction.style.minWidth = "90px";
+
+        const numerator =
+            document.createElement("div");
+        numerator.textContent =
+            problem.numerator;
+
+        const line =
+            document.createElement("div");
+        line.style.width = "100%";
+        line.style.height = "4px";
+        line.style.background =
+            "currentColor";
+        line.style.margin = "6px 0";
+
+        const denominator =
+            document.createElement("div");
+        denominator.textContent =
+            problem.denominator;
+
+        fraction.appendChild(numerator);
+        fraction.appendChild(line);
+        fraction.appendChild(denominator);
+
+        elements.visual.appendChild(fraction);
+
+        elements.question.textContent =
+            "Simplify the fraction.";
+
+        elements.example.textContent =
+            "Example: 6/8 → 3/4";
+    },
+
+    checkAnswer(context) {
+        const problem = context.problem;
+
+        const answer =
+            normalizeFractionAnswer(
+                context.userAnswer
+            );
+
+        if (!answer) {
+            return {
+                correct: false,
+                message:
+                    "Please enter a fraction such as 3/4."
+            };
+        }
+
+        if (
+            answer.numerator ===
+                problem.simplifiedNumerator &&
+            answer.denominator ===
+                problem.simplifiedDenominator
+        ) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    problem.simplifiedNumerator +
+                    "/" +
+                    problem.simplifiedDenominator
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the numerator and denominator by their greatest common factor."
+        };
+    },
+
+    formatCorrectFeedback(context) {
+        return (
+            "Correct. Simplified answer: " +
+            context.result.expectedAnswer
+        );
+    },
+
+    formatIncorrectFeedback() {
+        return (
+            "Not quite. Divide the numerator and denominator by their greatest common factor."
+        );
+    }
+});
 
 
 
