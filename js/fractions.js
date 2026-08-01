@@ -1936,7 +1936,152 @@ registerFractionGenerator(4, {
 // GENERATOR 05: Compare — same denominator
 // ==================================================
 
-// CODE FÜR GENERATOR 05 HIER EINFÜGEN
+registerFractionGenerator(5, {
+    title: "Compare: same denominator",
+
+    createProblem() {
+        const denominator = randomInteger(2, 15);
+
+        let numerator1 = randomInteger(1, denominator - 1);
+        let numerator2 = randomInteger(1, denominator - 1);
+
+        while (numerator2 === numerator1) {
+            numerator2 = randomInteger(1, denominator - 1);
+        }
+
+        let correctSymbol;
+
+        if (numerator1 > numerator2) {
+            correctSymbol = ">";
+        } else {
+            correctSymbol = "<";
+        }
+
+        return {
+            numerator1,
+            denominator1: denominator,
+            numerator2,
+            denominator2: denominator,
+            correctSymbol
+        };
+    },
+
+    renderProblem(context) {
+        const problem = context.problem;
+        const elements = context.elements;
+
+        elements.visual.replaceChildren();
+
+        elements.visual.style.display = "flex";
+        elements.visual.style.justifyContent = "center";
+        elements.visual.style.alignItems = "center";
+        elements.visual.style.gap = "24px";
+        elements.visual.style.marginBottom = "24px";
+
+        function createFraction(numerator, denominator) {
+            const fraction = document.createElement("div");
+
+            fraction.style.display = "inline-flex";
+            fraction.style.flexDirection = "column";
+            fraction.style.alignItems = "center";
+            fraction.style.fontSize = "42px";
+            fraction.style.fontWeight = "700";
+            fraction.style.lineHeight = "1.1";
+            fraction.style.minWidth = "80px";
+
+            const top = document.createElement("div");
+            top.textContent = numerator;
+
+            const line = document.createElement("div");
+            line.style.width = "100%";
+            line.style.height = "4px";
+            line.style.background = "currentColor";
+            line.style.margin = "6px 0";
+
+            const bottom = document.createElement("div");
+            bottom.textContent = denominator;
+
+            fraction.appendChild(top);
+            fraction.appendChild(line);
+            fraction.appendChild(bottom);
+
+            return fraction;
+        }
+
+        elements.visual.appendChild(
+            createFraction(
+                problem.numerator1,
+                problem.denominator1
+            )
+        );
+
+        const questionMark =
+            document.createElement("div");
+
+        questionMark.textContent = "?";
+        questionMark.style.fontSize = "42px";
+        questionMark.style.fontWeight = "700";
+
+        elements.visual.appendChild(questionMark);
+
+        elements.visual.appendChild(
+            createFraction(
+                problem.numerator2,
+                problem.denominator2
+            )
+        );
+
+        elements.question.textContent =
+            "Which comparison symbol is correct?";
+
+        elements.example.textContent =
+            "Answer with < or >";
+    },
+
+    checkAnswer(context) {
+        const problem = context.problem;
+
+        const answer =
+            normalizeComparisonSymbol(
+                context.userAnswer
+            );
+
+        if (!answer) {
+            return {
+                correct: false,
+                message:
+                    "Please enter < or >."
+            };
+        }
+
+        if (answer === problem.correctSymbol) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    problem.correctSymbol
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. With the same denominator, the larger numerator is the larger fraction."
+        };
+    },
+
+    formatCorrectFeedback(context) {
+        return (
+            "Correct. Answer: " +
+            context.result.expectedAnswer
+        );
+    },
+
+    formatIncorrectFeedback() {
+        return (
+            "Not quite. With the same denominator, the larger numerator is the larger fraction."
+        );
+    }
+});
 
 
 
