@@ -1,8 +1,10 @@
-"use strict";
+from pathlib import Path
+
+code = r'''"use strict";
 
 // ==================================================
 // THE MATH FINAL GIRL
-// PERCENTAGES MASTER FILE
+// PERCENTAGES & RATIOS MASTER FILE
 //
 // GitHub-Zwischendatei: percentagesjs.html
 // Später umbenennen in: percentages.js
@@ -28,7 +30,6 @@ const PERCENTAGES_CONFIG = {
     feedbackId: "percentage-feedback",
 
     generatorButtonSelector: "[data-percentage-generator]",
-    mixedPracticeButtonSelector: "[data-percentage-mixed-practice]",
 
     hiddenClass: "is-hidden",
     activeButtonClass: "active",
@@ -45,8 +46,7 @@ const percentagesState = {
     activeGeneratorNumber: null,
     currentProblem: null,
     answerChecked: false,
-    activeGeneratorNumbers: [],
-    mixedPracticeActive: false
+    activeGeneratorNumbers: []
 };
 
 
@@ -111,7 +111,6 @@ document.addEventListener("DOMContentLoaded", initializePercentagesPage);
 
 function initializePercentagesPage() {
     connectGeneratorButtons();
-    connectMixedPracticeButton();
     connectAnswerField();
     connectCheckAnswerButton();
     connectNewProblemButton();
@@ -193,17 +192,6 @@ function connectGeneratorButtons() {
 }
 
 
-function connectMixedPracticeButton() {
-    const button = document.querySelector(
-        PERCENTAGES_CONFIG.mixedPracticeButtonSelector
-    );
-
-    if (button) {
-        button.addEventListener("click", startMixedPractice);
-    }
-}
-
-
 function connectAnswerField() {
     const answerField = getAnswerField();
 
@@ -268,7 +256,6 @@ function startPercentageGenerator(generatorNumber) {
     }
 
     percentagesState.activeGeneratorNumber = number;
-    percentagesState.mixedPracticeActive = false;
 
     markActiveGeneratorButton(number);
     showExerciseArea();
@@ -289,35 +276,6 @@ function markActiveGeneratorButton(generatorNumber) {
                 buttonGeneratorNumber === generatorNumber
             );
         });
-
-    const mixedPracticeButton = document.querySelector(
-        PERCENTAGES_CONFIG.mixedPracticeButtonSelector
-    );
-
-    if (mixedPracticeButton) {
-        mixedPracticeButton.classList.remove(
-            PERCENTAGES_CONFIG.activeButtonClass
-        );
-    }
-}
-
-
-function markMixedPracticeButtonActive() {
-    document
-        .querySelectorAll(PERCENTAGES_CONFIG.generatorButtonSelector)
-        .forEach((button) => {
-            button.classList.remove(PERCENTAGES_CONFIG.activeButtonClass);
-        });
-
-    const mixedPracticeButton = document.querySelector(
-        PERCENTAGES_CONFIG.mixedPracticeButtonSelector
-    );
-
-    if (mixedPracticeButton) {
-        mixedPracticeButton.classList.add(
-            PERCENTAGES_CONFIG.activeButtonClass
-        );
-    }
 }
 
 
@@ -334,28 +292,6 @@ function deactivateUnavailableGeneratorButtons() {
             button.disabled = !isAvailable;
             button.setAttribute("aria-disabled", String(!isAvailable));
         });
-
-    updateMixedPracticeButton();
-}
-
-
-function updateMixedPracticeButton() {
-    const button = document.querySelector(
-        PERCENTAGES_CONFIG.mixedPracticeButtonSelector
-    );
-
-    if (!button) {
-        return;
-    }
-
-    const hasAvailableGenerators =
-        percentagesState.activeGeneratorNumbers.length > 0;
-
-    button.disabled = !hasAvailableGenerators;
-    button.setAttribute(
-        "aria-disabled",
-        String(!hasAvailableGenerators)
-    );
 }
 
 
@@ -371,36 +307,7 @@ function updateAvailableGenerators() {
 
 
 // ==================================================
-// 08. MIXED PRACTICE
-// ==================================================
-
-function startMixedPractice() {
-    updateAvailableGenerators();
-
-    if (percentagesState.activeGeneratorNumbers.length === 0) {
-        return;
-    }
-
-    percentagesState.mixedPracticeActive = true;
-    percentagesState.activeGeneratorNumber = null;
-
-    markMixedPracticeButtonActive();
-    showExerciseArea();
-    createNextProblem();
-}
-
-
-function chooseRandomActiveGeneratorNumber() {
-    if (percentagesState.activeGeneratorNumbers.length === 0) {
-        return null;
-    }
-
-    return randomItem(percentagesState.activeGeneratorNumbers);
-}
-
-
-// ==================================================
-// 09. AUFGABE ERSTELLEN
+// 08. AUFGABE ERSTELLEN
 // ==================================================
 
 function createNextProblem() {
@@ -409,11 +316,7 @@ function createNextProblem() {
 
     percentagesState.answerChecked = false;
 
-    let generatorNumber = percentagesState.activeGeneratorNumber;
-
-    if (percentagesState.mixedPracticeActive) {
-        generatorNumber = chooseRandomActiveGeneratorNumber();
-    }
+    const generatorNumber = percentagesState.activeGeneratorNumber;
 
     if (
         generatorNumber === null ||
@@ -451,7 +354,7 @@ function createNextProblem() {
 
 
 // ==================================================
-// 10. AUFGABE ANZEIGEN
+// 09. AUFGABE ANZEIGEN
 // ==================================================
 
 function renderCurrentProblem() {
@@ -574,7 +477,7 @@ function showExerciseArea() {
 
 
 // ==================================================
-// 11. ANTWORT PRÜFEN
+// 10. ANTWORT PRÜFEN
 // ==================================================
 
 function checkCurrentAnswer() {
@@ -727,7 +630,7 @@ function createIncorrectFeedbackMessage(
 
 
 // ==================================================
-// 12. FEEDBACK
+// 11. FEEDBACK
 // ==================================================
 
 function showCorrectFeedback(message) {
@@ -787,7 +690,7 @@ function clearFeedback() {
 
 
 // ==================================================
-// 13. EINGABEFELD
+// 12. EINGABEFELD
 // ==================================================
 
 function clearAnswerField() {
@@ -815,7 +718,7 @@ function focusAnswerField() {
 
 
 // ==================================================
-// 14. MATHEMATISCHE HILFSFUNKTIONEN
+// 13. MATHEMATISCHE HILFSFUNKTIONEN
 // ==================================================
 
 function greatestCommonDivisor(firstNumber, secondNumber) {
@@ -836,27 +739,7 @@ function greatestCommonDivisor(firstNumber, secondNumber) {
 }
 
 
-function leastCommonMultiple(firstNumber, secondNumber) {
-    const first = Number(firstNumber);
-    const second = Number(secondNumber);
-
-    if (
-        !Number.isInteger(first) ||
-        !Number.isInteger(second) ||
-        first === 0 ||
-        second === 0
-    ) {
-        return 0;
-    }
-
-    return Math.abs(
-        (first * second) /
-        greatestCommonDivisor(first, second)
-    );
-}
-
-
-function simplifyPercentage(numerator, denominator) {
+function simplifyFraction(numerator, denominator) {
     let top = Number(numerator);
     let bottom = Number(denominator);
 
@@ -882,8 +765,8 @@ function simplifyPercentage(numerator, denominator) {
 }
 
 
-function formatPercentage(numerator, denominator) {
-    const simplified = simplifyPercentage(numerator, denominator);
+function formatFraction(numerator, denominator) {
+    const simplified = simplifyFraction(numerator, denominator);
 
     if (!simplified) {
         return "";
@@ -897,23 +780,7 @@ function formatPercentage(numerator, denominator) {
 }
 
 
-function formatUnsimplifiedPercentage(numerator, denominator) {
-    const top = Number(numerator);
-    const bottom = Number(denominator);
-
-    if (
-        !Number.isInteger(top) ||
-        !Number.isInteger(bottom) ||
-        bottom === 0
-    ) {
-        return "";
-    }
-
-    return `${top}/${bottom}`;
-}
-
-
-function parsePercentage(value) {
+function parseFraction(value) {
     if (typeof value !== "string") {
         return null;
     }
@@ -930,231 +797,128 @@ function parsePercentage(value) {
         return null;
     }
 
-    const originalNumerator = Number(match[1]);
-    const originalDenominator = Number(match[2]);
+    const numerator = Number(match[1]);
+    const denominator = Number(match[2]);
 
     if (
-        !Number.isInteger(originalNumerator) ||
-        !Number.isInteger(originalDenominator) ||
-        originalDenominator === 0
+        !Number.isInteger(numerator) ||
+        !Number.isInteger(denominator) ||
+        denominator === 0
     ) {
         return null;
     }
 
-    const simplified = simplifyPercentage(
-        originalNumerator,
-        originalDenominator
-    );
-
-    return {
-        originalNumerator,
-        originalDenominator,
-        numerator: simplified.numerator,
-        denominator: simplified.denominator
-    };
+    return simplifyFraction(numerator, denominator);
 }
 
 
-function parseMixedNumber(value) {
+function parseNumber(value) {
     if (typeof value !== "string") {
         return null;
     }
 
-    const normalizedValue = value.trim().replace(/\s+/g, " ");
+    const normalizedValue = value
+        .trim()
+        .replace(",", ".")
+        .replace(/[%$€£]/g, "")
+        .replace(/\s+/g, "");
+
+    if (!/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(normalizedValue)) {
+        return null;
+    }
+
+    const number = Number(normalizedValue);
+
+    return Number.isFinite(number) ? number : null;
+}
+
+
+function parsePercentage(value) {
+    return parseNumber(value);
+}
+
+
+function parseRatio(value) {
+    if (typeof value !== "string") {
+        return null;
+    }
+
+    const normalizedValue = value
+        .trim()
+        .replace(/\s+/g, "");
+
     const match = normalizedValue.match(
-        /^([+-]?\d+)\s+(\d+)\/(\d+)$/
+        /^([+-]?\d+):([+-]?\d+)$/
     );
 
     if (!match) {
         return null;
     }
 
-    const wholeNumber = Number(match[1]);
-    const numerator = Number(match[2]);
-    const denominator = Number(match[3]);
+    const first = Number(match[1]);
+    const second = Number(match[2]);
 
     if (
-        !Number.isInteger(wholeNumber) ||
-        !Number.isInteger(numerator) ||
-        !Number.isInteger(denominator) ||
-        numerator < 0 ||
-        denominator <= 0 ||
-        numerator >= denominator
+        !Number.isInteger(first) ||
+        !Number.isInteger(second) ||
+        first <= 0 ||
+        second <= 0
     ) {
         return null;
     }
 
     return {
-        wholeNumber,
-        numerator,
-        denominator
+        first,
+        second
     };
 }
 
 
-function formatMixedNumber(wholeNumber, numerator, denominator) {
-    if (numerator === 0) {
-        return String(wholeNumber);
-    }
-
-    return `${wholeNumber} ${formatPercentage(numerator, denominator)}`;
-}
-
-
-function percentagesAreEquivalent(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    if (
-        firstDenominator === 0 ||
-        secondDenominator === 0
-    ) {
-        return false;
-    }
-
-    return (
-        Number(firstNumerator) * Number(secondDenominator) ===
-        Number(secondNumerator) * Number(firstDenominator)
-    );
-}
-
-
-function comparePercentages(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    const firstValue =
-        Number(firstNumerator) * Number(secondDenominator);
-
-    const secondValue =
-        Number(secondNumerator) * Number(firstDenominator);
-
-    if (firstValue < secondValue) {
-        return -1;
-    }
-
-    if (firstValue > secondValue) {
-        return 1;
-    }
-
-    return 0;
-}
-
-
-function addPercentages(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    return simplifyPercentage(
-        firstNumerator * secondDenominator +
-            secondNumerator * firstDenominator,
-        firstDenominator * secondDenominator
-    );
-}
-
-
-function subtractPercentages(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    return simplifyPercentage(
-        firstNumerator * secondDenominator -
-            secondNumerator * firstDenominator,
-        firstDenominator * secondDenominator
-    );
-}
-
-
-function multiplyPercentages(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    return simplifyPercentage(
-        firstNumerator * secondNumerator,
-        firstDenominator * secondDenominator
-    );
-}
-
-
-function dividePercentages(
-    firstNumerator,
-    firstDenominator,
-    secondNumerator,
-    secondDenominator
-) {
-    if (Number(secondNumerator) === 0) {
-        return null;
-    }
-
-    return simplifyPercentage(
-        firstNumerator * secondDenominator,
-        firstDenominator * secondNumerator
-    );
-}
-
-
-function improperPercentageToMixedNumber(numerator, denominator) {
-    const simplified = simplifyPercentage(numerator, denominator);
-
-    if (!simplified) {
-        return null;
-    }
-
-    const wholeNumber = Math.trunc(
-        simplified.numerator / simplified.denominator
-    );
-
-    const remainder = Math.abs(
-        simplified.numerator % simplified.denominator
-    );
+function simplifyRatio(first, second) {
+    const divisor = greatestCommonDivisor(first, second);
 
     return {
-        wholeNumber,
-        numerator: remainder,
-        denominator: simplified.denominator
+        first: first / divisor,
+        second: second / divisor
     };
 }
 
 
-function mixedNumberToImproperPercentage(
-    wholeNumber,
-    numerator,
-    denominator
-) {
-    const whole = Number(wholeNumber);
-    const top = Number(numerator);
-    const bottom = Number(denominator);
+function formatRatio(first, second) {
+    const simplified = simplifyRatio(first, second);
+    return `${simplified.first}:${simplified.second}`;
+}
 
-    if (
-        !Number.isInteger(whole) ||
-        !Number.isInteger(top) ||
-        !Number.isInteger(bottom) ||
-        bottom === 0
-    ) {
-        return null;
+
+function numbersAreClose(first, second, tolerance = 0.000001) {
+    return Math.abs(Number(first) - Number(second)) <= tolerance;
+}
+
+
+function roundTo(value, decimalPlaces = 2) {
+    const factor = 10 ** decimalPlaces;
+    return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
+}
+
+
+function formatNumber(value, decimalPlaces = 2) {
+    const rounded = roundTo(value, decimalPlaces);
+
+    if (Number.isInteger(rounded)) {
+        return String(rounded);
     }
 
-    const sign = whole < 0 ? -1 : 1;
+    return String(rounded);
+}
 
-    return simplifyPercentage(
-        whole * bottom + sign * Math.abs(top),
-        bottom
-    );
+
+function formatMoney(value) {
+    return formatNumber(value, 2);
 }
 
 
 // ==================================================
-// 15. ALLGEMEINE HILFSFUNKTIONEN
+// 14. ALLGEMEINE HILFSFUNKTIONEN
 // ==================================================
 
 function randomInteger(minimum, maximum) {
@@ -1176,202 +940,36 @@ function randomItem(items) {
 }
 
 
-function shuffleArray(items) {
-    const shuffledItems = [...items];
-
-    for (
-        let currentIndex = shuffledItems.length - 1;
-        currentIndex > 0;
-        currentIndex -= 1
-    ) {
-        const randomIndex = randomInteger(0, currentIndex);
-
-        [
-            shuffledItems[currentIndex],
-            shuffledItems[randomIndex]
-        ] = [
-            shuffledItems[randomIndex],
-            shuffledItems[currentIndex]
-        ];
-    }
-
-    return shuffledItems;
-}
-
-
-function normalizeTextAnswer(value) {
-    return String(value)
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
-}
-
-
-function normalizeComparisonSymbol(value) {
-    const normalizedValue = String(value)
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "");
-
-    if (
-        normalizedValue === "<" ||
-        normalizedValue === "less" ||
-        normalizedValue === "lessthan"
-    ) {
-        return "<";
-    }
-
-    if (
-        normalizedValue === ">" ||
-        normalizedValue === "greater" ||
-        normalizedValue === "greaterthan"
-    ) {
-        return ">";
-    }
-
-    if (
-        normalizedValue === "=" ||
-        normalizedValue === "==" ||
-        normalizedValue === "equal" ||
-        normalizedValue === "equals"
-    ) {
-        return "=";
-    }
-
-    return "";
+function createPlainProblem(problemText, questionText, exampleText) {
+    return {
+        problemText,
+        questionText,
+        exampleText
+    };
 }
 
 
 // ==================================================
-// 16. GEMEINSAMES RENDERING
-// ==================================================
-
-function createPercentageElement(numerator, denominator, options = {}) {
-    const percentage = document.createElement("div");
-
-    percentage.style.display = "inline-flex";
-    percentage.style.flexDirection = "column";
-    percentage.style.alignItems = "center";
-    percentage.style.justifyContent = "center";
-    percentage.style.fontSize = options.fontSize || "42px";
-    percentage.style.fontWeight = "700";
-    percentage.style.lineHeight = "1.1";
-    percentage.style.minWidth = options.minWidth || "80px";
-
-    const top = document.createElement("div");
-    top.textContent = numerator;
-
-    const line = document.createElement("div");
-    line.style.width = "100%";
-    line.style.height = "4px";
-    line.style.background = "currentColor";
-    line.style.margin = "6px 0";
-
-    const bottom = document.createElement("div");
-    bottom.textContent = denominator;
-
-    percentage.appendChild(top);
-    percentage.appendChild(line);
-    percentage.appendChild(bottom);
-
-    return percentage;
-}
-
-
-function renderPercentageExpression(
-    visualElement,
-    percentages,
-    symbols = []
-) {
-    visualElement.replaceChildren();
-    visualElement.style.display = "flex";
-    visualElement.style.justifyContent = "center";
-    visualElement.style.alignItems = "center";
-    visualElement.style.gap = "22px";
-    visualElement.style.flexWrap = "wrap";
-    visualElement.style.marginBottom = "24px";
-
-    percentages.forEach((percentage, index) => {
-        visualElement.appendChild(
-            createPercentageElement(
-                percentage.numerator,
-                percentage.denominator
-            )
-        );
-
-        if (index < symbols.length) {
-            const symbol = document.createElement("div");
-            symbol.textContent = symbols[index];
-            symbol.style.fontSize = "42px";
-            symbol.style.fontWeight = "700";
-            visualElement.appendChild(symbol);
-        }
-    });
-}
-
-
-function renderPlainExpression(visualElement, expression) {
-    visualElement.replaceChildren();
-    visualElement.style.display = "flex";
-    visualElement.style.justifyContent = "center";
-    visualElement.style.alignItems = "center";
-    visualElement.style.marginBottom = "24px";
-    visualElement.style.fontSize = "42px";
-    visualElement.style.fontWeight = "700";
-    visualElement.textContent = expression;
-}
-
-
-function checkPercentageEquivalentToExpected(
-    userAnswer,
-    expectedNumerator,
-    expectedDenominator
-) {
-    const parsed = parsePercentage(userAnswer);
-
-    if (!parsed) {
-        return null;
-    }
-
-    return percentagesAreEquivalent(
-        parsed.originalNumerator,
-        parsed.originalDenominator,
-        expectedNumerator,
-        expectedDenominator
-    );
-}
-
-
-// ==================================================
-// 17. HILFSFUNKTIONEN FÜR GENERATOREN
+// 15. HILFSFUNKTIONEN FÜR GENERATOREN
 // ==================================================
 
 const percentageHelperFunctions = Object.freeze({
     greatestCommonDivisor,
-    leastCommonMultiple,
-    simplifyPercentage,
-    formatPercentage,
-    formatUnsimplifiedPercentage,
+    simplifyFraction,
+    formatFraction,
+    parseFraction,
+    parseNumber,
     parsePercentage,
-    parseMixedNumber,
-    formatMixedNumber,
-    percentagesAreEquivalent,
-    comparePercentages,
-    addPercentages,
-    subtractPercentages,
-    multiplyPercentages,
-    dividePercentages,
-    improperPercentageToMixedNumber,
-    mixedNumberToImproperPercentage,
+    parseRatio,
+    simplifyRatio,
+    formatRatio,
+    numbersAreClose,
+    roundTo,
+    formatNumber,
+    formatMoney,
     randomInteger,
     randomItem,
-    shuffleArray,
-    normalizeTextAnswer,
-    normalizeComparisonSymbol,
-    createPercentageElement,
-    renderPercentageExpression,
-    renderPlainExpression,
-    checkPercentageEquivalentToExpected,
+    createPlainProblem,
     showCorrectFeedback,
     showIncorrectFeedback,
     clearFeedback
@@ -1379,1857 +977,1144 @@ const percentageHelperFunctions = Object.freeze({
 
 
 // ==================================================
-// GENERATOR 01: Identify the percentage
+// GENERATOR 01: Convert percentage → decimal
 // ==================================================
 
 registerPercentageGenerator(1, {
-    title: "Identify the percentage",
+    title: "Convert percentage → decimal",
 
     createProblem() {
-        const possibleDenominators = [2, 3, 4, 5, 6, 8, 10, 12];
-        const denominator = randomItem(possibleDenominators);
-        const numerator = randomInteger(1, denominator - 1);
+        const percentage = randomInteger(1, 250);
 
-        return {
-            numerator,
-            denominator
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-        const visual = elements.visual;
-
-        visual.replaceChildren();
-        visual.style.display = "flex";
-        visual.style.justifyContent = "center";
-        visual.style.alignItems = "center";
-        visual.style.gap = "18px";
-        visual.style.flexWrap = "wrap";
-        visual.style.marginBottom = "24px";
-
-        for (
-            let part = 1;
-            part <= problem.denominator;
-            part += 1
-        ) {
-            const square = document.createElement("div");
-
-            square.style.width = "56px";
-            square.style.height = "56px";
-            square.style.borderRadius = "12px";
-            square.style.border = "4px solid #4b4b4b";
-            square.style.boxSizing = "border-box";
-            square.style.background =
-                part <= problem.numerator
-                    ? "#7b3f00"
-                    : "transparent";
-
-            visual.appendChild(square);
-        }
-
-        elements.question.textContent =
-            "What percentage is shaded?";
-
-        elements.example.textContent =
-            "Example: 1/3";
+        return createPlainProblem(
+            `${percentage}%`,
+            "Convert the percentage to a decimal.",
+            "Example: 35% → 0.35"
+        );
     },
 
     checkAnswer(context) {
-        const parsed = parsePercentage(context.userAnswer);
+        const answer = parseNumber(context.userAnswer);
 
-        if (!parsed) {
+        if (answer === null) {
             return {
                 correct: false,
-                message:
-                    "Please enter your answer as a percentage, for example 1/3."
+                message: "Please enter a decimal number."
             };
         }
 
-        const correct = percentagesAreEquivalent(
-            parsed.originalNumerator,
-            parsed.originalDenominator,
-            context.problem.numerator,
-            context.problem.denominator
+        const percentage = Number(
+            context.problem.problemText.replace("%", "")
         );
+        const expected = percentage / 100;
 
-        if (!correct) {
+        if (numbersAreClose(answer, expected)) {
             return {
-                correct: false,
-                message:
-                    "Not quite. Count the shaded parts and then count all parts."
+                correct: true,
+                expectedAnswer: formatNumber(expected, 4)
             };
         }
 
         return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.numerator,
-                context.problem.denominator
-            )
+            correct: false,
+            message: "Not quite. Divide the percentage by 100."
         };
     }
 });
 
 
 // ==================================================
-// GENERATOR 02: Numerator or denominator
+// GENERATOR 02: Convert decimal → percentage
 // ==================================================
 
 registerPercentageGenerator(2, {
-    title: "Numerator or denominator",
+    title: "Convert decimal → percentage",
 
     createProblem() {
-        const denominator = randomInteger(2, 20);
-        const numerator = randomInteger(1, denominator - 1);
-        const questionType = randomItem([
-            "numerator",
-            "denominator"
-        ]);
+        const hundredths = randomInteger(1, 250);
+        const decimal = hundredths / 100;
 
-        return {
-            numerator,
-            denominator,
-            questionType
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [{
-                numerator: problem.numerator,
-                denominator: problem.denominator
-            }]
+        return createPlainProblem(
+            formatNumber(decimal, 2),
+            "Convert the decimal to a percentage.",
+            "Example: 0.35 → 35%"
         );
-
-        elements.question.textContent =
-            problem.questionType === "numerator"
-                ? "What is the numerator?"
-                : "What is the denominator?";
-
-        elements.example.textContent =
-            problem.questionType === "numerator"
-                ? "The numerator is the top number."
-                : "The denominator is the bottom number.";
     },
 
     checkAnswer(context) {
-        const normalizedAnswer = context.userAnswer.trim();
+        const answer = parsePercentage(context.userAnswer);
 
-        if (!/^[+-]?\d+$/.test(normalizedAnswer)) {
+        if (answer === null) {
             return {
                 correct: false,
-                message: "Please enter a whole number."
+                message: "Please enter a percentage."
             };
         }
 
-        const expectedAnswer =
-            context.problem.questionType === "numerator"
-                ? context.problem.numerator
-                : context.problem.denominator;
+        const expected = Number(context.problem.problemText) * 100;
 
-        if (Number(normalizedAnswer) === expectedAnswer) {
+        if (numbersAreClose(answer, expected)) {
             return {
                 correct: true,
-                expectedAnswer: String(expectedAnswer)
+                expectedAnswer: `${formatNumber(expected, 2)}%`
             };
         }
 
         return {
             correct: false,
-            message:
-                context.problem.questionType === "numerator"
-                    ? "Not quite. The numerator is the top number."
-                    : "Not quite. The denominator is the bottom number."
+            message: "Not quite. Multiply the decimal by 100."
         };
     }
 });
 
 
 // ==================================================
-// GENERATOR 03: Equivalent percentages
+// GENERATOR 03: Convert fraction → percentage
 // ==================================================
 
 registerPercentageGenerator(3, {
-    title: "Equivalent percentages",
+    title: "Convert fraction → percentage",
 
     createProblem() {
-        const denominator = randomInteger(2, 12);
-        const numerator = randomInteger(1, denominator - 1);
-        const multiplier = randomInteger(2, 6);
-        const missingPart = randomItem([
-            "numerator",
-            "denominator"
-        ]);
+        const choices = [
+            [1, 2],
+            [1, 4],
+            [3, 4],
+            [1, 5],
+            [2, 5],
+            [3, 5],
+            [4, 5],
+            [1, 10],
+            [3, 10],
+            [7, 10],
+            [1, 20],
+            [3, 20],
+            [7, 20],
+            [9, 20]
+        ];
+
+        const [numerator, denominator] = randomItem(choices);
 
         return {
             numerator,
             denominator,
-            equivalentNumerator: numerator * multiplier,
-            equivalentDenominator: denominator * multiplier,
-            missingPart
+            problemText: `${numerator}/${denominator}`,
+            questionText: "Convert the fraction to a percentage.",
+            exampleText: "Example: 3/4 → 75%"
         };
     },
 
-    renderProblem(context) {
-        const { problem, elements } = context;
+    checkAnswer(context) {
+        const answer = parsePercentage(context.userAnswer);
 
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator,
-                    denominator: problem.denominator
-                },
-                {
-                    numerator:
-                        problem.missingPart === "numerator"
-                            ? "?"
-                            : problem.equivalentNumerator,
-                    denominator:
-                        problem.missingPart === "denominator"
-                            ? "?"
-                            : problem.equivalentDenominator
-                }
-            ],
-            ["="]
-        );
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a percentage."
+            };
+        }
 
-        elements.question.textContent =
-            "Which number makes the percentages equivalent?";
+        const expected =
+            (context.problem.numerator /
+                context.problem.denominator) *
+            100;
 
-        elements.example.textContent =
-            "Multiply the numerator and denominator by the same number.";
+        if (numbersAreClose(answer, expected)) {
+            return {
+                correct: true,
+                expectedAnswer: `${formatNumber(expected, 2)}%`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the numerator by the denominator, then multiply by 100."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 04: Convert percentage → fraction
+// ==================================================
+
+registerPercentageGenerator(4, {
+    title: "Convert percentage → fraction",
+
+    createProblem() {
+        const percentage = randomItem([
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
+            55, 60, 65, 70, 75, 80, 85, 90, 95, 125, 150
+        ]);
+        const simplified = simplifyFraction(percentage, 100);
+
+        return {
+            percentage,
+            numerator: simplified.numerator,
+            denominator: simplified.denominator,
+            problemText: `${percentage}%`,
+            questionText: "Convert the percentage to a fraction and simplify it.",
+            exampleText: "Example: 75% → 3/4"
+        };
     },
 
     checkAnswer(context) {
-        const normalizedAnswer = context.userAnswer.trim();
+        const answer = parseFraction(context.userAnswer);
 
-        if (!/^[+-]?\d+$/.test(normalizedAnswer)) {
+        if (!answer) {
+            return {
+                correct: false,
+                message: "Please enter a fraction such as 3/4."
+            };
+        }
+
+        if (
+            answer.numerator === context.problem.numerator &&
+            answer.denominator === context.problem.denominator
+        ) {
+            return {
+                correct: true,
+                simplifiedAnswer: formatFraction(
+                    context.problem.numerator,
+                    context.problem.denominator
+                )
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Write the percentage over 100, then simplify."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 05: Find x% of a number
+// ==================================================
+
+registerPercentageGenerator(5, {
+    title: "Find x% of a number",
+
+    createProblem() {
+        const percentage = randomItem([
+            5, 10, 15, 20, 25, 30, 40, 50, 60, 75
+        ]);
+        const multiplier = randomInteger(2, 20);
+        const number = 100 * multiplier / greatestCommonDivisor(percentage, 100);
+        const result = number * percentage / 100;
+
+        return createPlainProblem(
+            `${percentage}% of ${number}`,
+            "Find the value.",
+            "Multiply the number by the percentage as a decimal."
+        );
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a number."
+            };
+        }
+
+        const match = context.problem.problemText.match(
+            /^(\d+)% of ([\d.]+)$/
+        );
+        const expected = Number(match[2]) * Number(match[1]) / 100;
+
+        if (numbersAreClose(answer, expected)) {
+            return {
+                correct: true,
+                expectedAnswer: formatNumber(expected, 2)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Convert the percentage to a decimal and multiply."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 06: What percentage is one number of another?
+// ==================================================
+
+registerPercentageGenerator(6, {
+    title: "What percentage is one number of another?",
+
+    createProblem() {
+        const percentage = randomItem([
+            10, 20, 25, 30, 40, 50, 60, 75, 80, 90
+        ]);
+        const whole = randomInteger(2, 20) * 10;
+        const part = whole * percentage / 100;
+
+        return {
+            part,
+            whole,
+            percentage,
+            problemText: `${part} is what percentage of ${whole}?`,
+            questionText: "Enter the percentage.",
+            exampleText: "Divide the part by the whole, then multiply by 100."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parsePercentage(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a percentage."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.percentage)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `${formatNumber(context.problem.percentage, 2)}%`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the part by the whole, then multiply by 100."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 07: Find the whole from part and percentage
+// ==================================================
+
+registerPercentageGenerator(7, {
+    title: "Find the whole from part and percentage",
+
+    createProblem() {
+        const percentage = randomItem([
+            10, 20, 25, 40, 50, 60, 75, 80
+        ]);
+        const whole = randomInteger(2, 20) * 10;
+        const part = whole * percentage / 100;
+
+        return {
+            part,
+            percentage,
+            whole,
+            problemText: `${part} is ${percentage}% of what number?`,
+            questionText: "Find the whole.",
+            exampleText: "Divide the part by the percentage as a decimal."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a number."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.whole)) {
+            return {
+                correct: true,
+                expectedAnswer: formatNumber(context.problem.whole, 2)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the part by the percentage as a decimal."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 08: Increase by x%
+// ==================================================
+
+registerPercentageGenerator(8, {
+    title: "Increase by x%",
+
+    createProblem() {
+        const original = randomInteger(2, 40) * 5;
+        const percentage = randomItem([
+            5, 10, 15, 20, 25, 30, 40, 50
+        ]);
+        const result = original * (1 + percentage / 100);
+
+        return {
+            original,
+            percentage,
+            result,
+            problemText: `Increase ${original} by ${percentage}%`,
+            questionText: "Find the new value.",
+            exampleText: "Multiply by 1 plus the percentage as a decimal."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a number."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.result)) {
+            return {
+                correct: true,
+                expectedAnswer: formatNumber(context.problem.result, 2)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Find the increase and add it to the original value."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 09: Decrease by x%
+// ==================================================
+
+registerPercentageGenerator(9, {
+    title: "Decrease by x%",
+
+    createProblem() {
+        const original = randomInteger(2, 40) * 5;
+        const percentage = randomItem([
+            5, 10, 15, 20, 25, 30, 40, 50
+        ]);
+        const result = original * (1 - percentage / 100);
+
+        return {
+            original,
+            percentage,
+            result,
+            problemText: `Decrease ${original} by ${percentage}%`,
+            questionText: "Find the new value.",
+            exampleText: "Multiply by 1 minus the percentage as a decimal."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a number."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.result)) {
+            return {
+                correct: true,
+                expectedAnswer: formatNumber(context.problem.result, 2)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Find the decrease and subtract it from the original value."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 10: Percentage increase
+// ==================================================
+
+registerPercentageGenerator(10, {
+    title: "Percentage increase",
+
+    createProblem() {
+        const oldValue = randomInteger(2, 20) * 10;
+        const percentage = randomItem([
+            10, 20, 25, 30, 40, 50, 60, 75
+        ]);
+        const newValue = oldValue * (1 + percentage / 100);
+
+        return {
+            oldValue,
+            newValue,
+            percentage,
+            problemText: `${oldValue} → ${formatNumber(newValue, 2)}`,
+            questionText: "What is the percentage increase?",
+            exampleText: "Increase ÷ original × 100."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parsePercentage(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a percentage."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.percentage)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `${formatNumber(context.problem.percentage, 2)}%`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the increase by the original value, then multiply by 100."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 11: Percentage decrease
+// ==================================================
+
+registerPercentageGenerator(11, {
+    title: "Percentage decrease",
+
+    createProblem() {
+        const oldValue = randomInteger(2, 20) * 10;
+        const percentage = randomItem([
+            10, 20, 25, 30, 40, 50, 60, 75
+        ]);
+        const newValue = oldValue * (1 - percentage / 100);
+
+        return {
+            oldValue,
+            newValue,
+            percentage,
+            problemText: `${oldValue} → ${formatNumber(newValue, 2)}`,
+            questionText: "What is the percentage decrease?",
+            exampleText: "Decrease ÷ original × 100."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parsePercentage(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a percentage."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.percentage)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `${formatNumber(context.problem.percentage, 2)}%`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the decrease by the original value, then multiply by 100."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 12: Percentage change
+// ==================================================
+
+registerPercentageGenerator(12, {
+    title: "Percentage change",
+
+    createProblem() {
+        const oldValue = randomInteger(2, 20) * 10;
+        const percentage = randomItem([
+            10, 20, 25, 30, 40, 50
+        ]);
+        const direction = randomItem(["increase", "decrease"]);
+        const factor =
+            direction === "increase"
+                ? 1 + percentage / 100
+                : 1 - percentage / 100;
+        const newValue = oldValue * factor;
+
+        return {
+            oldValue,
+            newValue,
+            percentage,
+            direction,
+            problemText: `${oldValue} → ${formatNumber(newValue, 2)}`,
+            questionText:
+                "Find the percentage change. Use a negative number for a decrease.",
+            exampleText:
+                "Change ÷ original × 100."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parsePercentage(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a percentage."
+            };
+        }
+
+        const expected =
+            context.problem.direction === "increase"
+                ? context.problem.percentage
+                : -context.problem.percentage;
+
+        if (numbersAreClose(answer, expected)) {
+            return {
+                correct: true,
+                expectedAnswer: `${formatNumber(expected, 2)}%`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide the change by the original value, then multiply by 100."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 13: Simplify ratios
+// ==================================================
+
+registerPercentageGenerator(13, {
+    title: "Simplify ratios",
+
+    createProblem() {
+        const first = randomInteger(1, 12);
+        const second = randomInteger(1, 12);
+        const multiplier = randomInteger(2, 10);
+
+        return {
+            first: first * multiplier,
+            second: second * multiplier,
+            simplified: simplifyRatio(first, second),
+            problemText: `${first * multiplier}:${second * multiplier}`,
+            questionText: "Simplify the ratio.",
+            exampleText: "Divide both parts by their greatest common divisor."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseRatio(context.userAnswer);
+
+        if (!answer) {
+            return {
+                correct: false,
+                message: "Please enter a ratio such as 3:4."
+            };
+        }
+
+        const simplified = simplifyRatio(answer.first, answer.second);
+
+        if (
+            simplified.first === context.problem.simplified.first &&
+            simplified.second === context.problem.simplified.second
+        ) {
+            return {
+                correct: true,
+                simplifiedAnswer: formatRatio(
+                    context.problem.simplified.first,
+                    context.problem.simplified.second
+                )
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Divide both parts by their greatest common divisor."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 14: Equivalent ratios
+// ==================================================
+
+registerPercentageGenerator(14, {
+    title: "Equivalent ratios",
+
+    createProblem() {
+        const first = randomInteger(1, 12);
+        const second = randomInteger(1, 12);
+        const multiplier = randomInteger(2, 10);
+        const missingSide = randomItem(["first", "second"]);
+
+        return {
+            first,
+            second,
+            multiplier,
+            equivalentFirst: first * multiplier,
+            equivalentSecond: second * multiplier,
+            missingSide,
+            problemText:
+                missingSide === "first"
+                    ? `${first}:${second} = ?:${second * multiplier}`
+                    : `${first}:${second} = ${first * multiplier}:?`,
+            questionText: "Find the missing value.",
+            exampleText: "Multiply both parts of the ratio by the same number."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null || !Number.isInteger(answer)) {
             return {
                 correct: false,
                 message: "Please enter a whole number."
             };
         }
 
-        const expectedAnswer =
-            context.problem.missingPart === "numerator"
-                ? context.problem.equivalentNumerator
-                : context.problem.equivalentDenominator;
+        const expected =
+            context.problem.missingSide === "first"
+                ? context.problem.equivalentFirst
+                : context.problem.equivalentSecond;
 
-        if (Number(normalizedAnswer) === expectedAnswer) {
+        if (answer === expected) {
             return {
                 correct: true,
-                expectedAnswer: String(expectedAnswer)
+                expectedAnswer: String(expected)
             };
         }
 
         return {
             correct: false,
             message:
-                "Not quite. Multiply the numerator and denominator by the same number."
+                "Not quite. Multiply both parts of the ratio by the same number."
         };
     }
 });
 
 
 // ==================================================
-// GENERATOR 04: Simplify a percentage
+// GENERATOR 15: Divide in a ratio
 // ==================================================
 
-registerPercentageGenerator(4, {
-    title: "Simplify a percentage",
+registerPercentageGenerator(15, {
+    title: "Divide in a ratio",
 
     createProblem() {
-        const baseDenominator = randomInteger(2, 12);
-        let baseNumerator = randomInteger(
-            1,
-            baseDenominator - 1
-        );
-
-        while (
-            greatestCommonDivisor(
-                baseNumerator,
-                baseDenominator
-            ) !== 1
-        ) {
-            baseNumerator = randomInteger(
-                1,
-                baseDenominator - 1
-            );
-        }
-
-        const commonFactor = randomInteger(2, 8);
+        const first = randomInteger(1, 8);
+        const second = randomInteger(1, 8);
+        const unit = randomInteger(2, 20);
+        const total = (first + second) * unit;
 
         return {
-            numerator: baseNumerator * commonFactor,
-            denominator: baseDenominator * commonFactor,
-            simplifiedNumerator: baseNumerator,
-            simplifiedDenominator: baseDenominator
+            first,
+            second,
+            total,
+            firstShare: first * unit,
+            secondShare: second * unit,
+            problemText: `Divide ${total} in the ratio ${first}:${second}`,
+            questionText: "Enter the two shares separated by a comma.",
+            exampleText: "Example: 30, 20"
         };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [{
-                numerator: problem.numerator,
-                denominator: problem.denominator
-            }]
-        );
-
-        elements.question.textContent =
-            "Simplify the percentage.";
-
-        elements.example.textContent =
-            "Example: 6/8 → 3/4";
-    },
-
-    checkAnswer(context) {
-        const parsed = parsePercentage(context.userAnswer);
-
-        if (!parsed) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 3/4."
-            };
-        }
-
-        const correct = percentagesAreEquivalent(
-            parsed.originalNumerator,
-            parsed.originalDenominator,
-            context.problem.simplifiedNumerator,
-            context.problem.simplifiedDenominator
-        );
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Divide the numerator and denominator by their greatest common factor."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.simplifiedNumerator,
-                context.problem.simplifiedDenominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 05: Compare — same denominator
-// ==================================================
-
-registerPercentageGenerator(5, {
-    title: "Compare: same denominator",
-
-    createProblem() {
-        const denominator = randomInteger(3, 15);
-        let numerator1 = randomInteger(1, denominator - 1);
-        let numerator2 = randomInteger(1, denominator - 1);
-
-        while (numerator2 === numerator1) {
-            numerator2 = randomInteger(1, denominator - 1);
-        }
-
-        return {
-            numerator1,
-            denominator1: denominator,
-            numerator2,
-            denominator2: denominator,
-            correctSymbol:
-                numerator1 > numerator2 ? ">" : "<"
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["?"]
-        );
-
-        elements.question.textContent =
-            "Compare the two percentages. Enter < or >.";
-
-        elements.example.textContent =
-            "With the same denominator, compare the numerators.";
-    },
-
-    checkAnswer(context) {
-        const answer = normalizeComparisonSymbol(
-            context.userAnswer
-        );
-
-        if (!answer || answer === "=") {
-            return {
-                correct: false,
-                message: "Please enter < or >."
-            };
-        }
-
-        if (answer === context.problem.correctSymbol) {
-            return {
-                correct: true,
-                expectedAnswer:
-                    context.problem.correctSymbol
-            };
-        }
-
-        return {
-            correct: false,
-            message:
-                "Not quite. With the same denominator, the larger numerator gives the larger percentage."
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 06: Compare — same numerator
-// ==================================================
-
-registerPercentageGenerator(6, {
-    title: "Compare: same numerator",
-
-    createProblem() {
-        const numerator = randomInteger(1, 12);
-        let denominator1 = randomInteger(
-            numerator + 1,
-            20
-        );
-        let denominator2 = randomInteger(
-            numerator + 1,
-            20
-        );
-
-        while (denominator2 === denominator1) {
-            denominator2 = randomInteger(
-                numerator + 1,
-                20
-            );
-        }
-
-        return {
-            numerator1: numerator,
-            denominator1,
-            numerator2: numerator,
-            denominator2,
-            correctSymbol:
-                denominator1 < denominator2 ? ">" : "<"
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["?"]
-        );
-
-        elements.question.textContent =
-            "Compare the two percentages. Enter < or >.";
-
-        elements.example.textContent =
-            "With the same numerator, the smaller denominator gives the larger percentage.";
-    },
-
-    checkAnswer(context) {
-        const answer = normalizeComparisonSymbol(
-            context.userAnswer
-        );
-
-        if (!answer || answer === "=") {
-            return {
-                correct: false,
-                message: "Please enter < or >."
-            };
-        }
-
-        if (answer === context.problem.correctSymbol) {
-            return {
-                correct: true,
-                expectedAnswer:
-                    context.problem.correctSymbol
-            };
-        }
-
-        return {
-            correct: false,
-            message:
-                "Not quite. With the same numerator, the smaller denominator gives the larger percentage."
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 07: Compare — different percentages
-// ==================================================
-
-registerPercentageGenerator(7, {
-    title: "Compare: different percentages",
-
-    createProblem() {
-        let numerator1;
-        let denominator1;
-        let numerator2;
-        let denominator2;
-        let comparison;
-
-        do {
-            denominator1 = randomInteger(2, 15);
-            denominator2 = randomInteger(2, 15);
-            numerator1 = randomInteger(1, denominator1 - 1);
-            numerator2 = randomInteger(1, denominator2 - 1);
-
-            comparison = comparePercentages(
-                numerator1,
-                denominator1,
-                numerator2,
-                denominator2
-            );
-        } while (comparison === 0);
-
-        return {
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2,
-            correctSymbol:
-                comparison > 0 ? ">" : "<"
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["?"]
-        );
-
-        elements.question.textContent =
-            "Compare the two percentages. Enter < or >.";
-
-        elements.example.textContent =
-            "Use a common denominator or cross multiplication.";
-    },
-
-    checkAnswer(context) {
-        const answer = normalizeComparisonSymbol(
-            context.userAnswer
-        );
-
-        if (!answer || answer === "=") {
-            return {
-                correct: false,
-                message: "Please enter < or >."
-            };
-        }
-
-        if (answer === context.problem.correctSymbol) {
-            return {
-                correct: true,
-                expectedAnswer:
-                    context.problem.correctSymbol
-            };
-        }
-
-        return {
-            correct: false,
-            message:
-                "Not quite. Use a common denominator or cross multiplication."
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 08: Order three percentages
-// ==================================================
-
-registerPercentageGenerator(8, {
-    title: "Order three percentages",
-
-    createProblem() {
-        const percentages = [];
-
-        while (percentages.length < 3) {
-            const denominator = randomInteger(2, 12);
-            const numerator = randomInteger(
-                1,
-                denominator - 1
-            );
-
-            const duplicate = percentages.some((percentage) => {
-                return percentagesAreEquivalent(
-                    percentage.numerator,
-                    percentage.denominator,
-                    numerator,
-                    denominator
-                );
-            });
-
-            if (!duplicate) {
-                percentages.push({
-                    numerator,
-                    denominator
-                });
-            }
-        }
-
-        const ordered = [...percentages].sort(
-            (first, second) => {
-                return comparePercentages(
-                    first.numerator,
-                    first.denominator,
-                    second.numerator,
-                    second.denominator
-                );
-            }
-        );
-
-        return {
-            percentages,
-            ordered
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            problem.percentages,
-            [",", ","]
-        );
-
-        elements.question.textContent =
-            "Order the percentages from smallest to largest.";
-
-        elements.example.textContent =
-            "Enter them separated by commas, for example: 1/4, 1/2, 3/4";
     },
 
     checkAnswer(context) {
         const parts = context.userAnswer
             .split(",")
-            .map((part) => part.trim())
-            .filter(Boolean);
+            .map((part) => parseNumber(part));
 
-        if (parts.length !== 3) {
+        if (
+            parts.length !== 2 ||
+            parts.some((part) => part === null)
+        ) {
             return {
                 correct: false,
                 message:
-                    "Please enter three percentages separated by commas."
+                    "Please enter two numbers separated by a comma."
             };
         }
 
-        const parsed = parts.map(parsePercentage);
-
-        if (parsed.some((percentage) => !percentage)) {
-            return {
-                correct: false,
-                message:
-                    "Please enter three valid percentages separated by commas."
-            };
-        }
-
-        const correct = parsed.every(
-            (percentage, index) => {
-                const expected =
-                    context.problem.ordered[index];
-
-                return percentagesAreEquivalent(
-                    percentage.originalNumerator,
-                    percentage.originalDenominator,
-                    expected.numerator,
-                    expected.denominator
-                );
-            }
-        );
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Compare the values and place the smallest percentage first."
-            };
-        }
-
-        return {
-            correct: true,
-            expectedAnswer:
-                context.problem.ordered
-                    .map((percentage) => {
-                        return formatPercentage(
-                            percentage.numerator,
-                            percentage.denominator
-                        );
-                    })
-                    .join(", ")
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 09: Add — same denominator
-// ==================================================
-
-registerPercentageGenerator(9, {
-    title: "Add: same denominator",
-
-    createProblem() {
-        const denominator = randomInteger(3, 15);
-        const numerator1 = randomInteger(
-            1,
-            denominator - 1
-        );
-        const numerator2 = randomInteger(
-            1,
-            denominator - 1
-        );
-        const result = addPercentages(
-            numerator1,
-            denominator,
-            numerator2,
-            denominator
-        );
-
-        return {
-            numerator1,
-            numerator2,
-            denominator,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator
-                }
-            ],
-            ["+"]
-        );
-
-        elements.question.textContent =
-            "Add the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Keep the denominator and add the numerators.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 5/8."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Keep the denominator and add the numerators."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 10: Subtract — same denominator
-// ==================================================
-
-registerPercentageGenerator(10, {
-    title: "Subtract: same denominator",
-
-    createProblem() {
-        const denominator = randomInteger(3, 15);
-        const numerator1 = randomInteger(
-            2,
-            denominator - 1
-        );
-        const numerator2 = randomInteger(
-            1,
-            numerator1 - 1
-        );
-        const result = subtractPercentages(
-            numerator1,
-            denominator,
-            numerator2,
-            denominator
-        );
-
-        return {
-            numerator1,
-            numerator2,
-            denominator,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator
-                }
-            ],
-            ["−"]
-        );
-
-        elements.question.textContent =
-            "Subtract the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Keep the denominator and subtract the numerators.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 3/8."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Keep the denominator and subtract the numerators."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 11: Add — different denominators
-// ==================================================
-
-registerPercentageGenerator(11, {
-    title: "Add: different denominators",
-
-    createProblem() {
-        let denominator1 = randomInteger(2, 12);
-        let denominator2 = randomInteger(2, 12);
-
-        while (denominator2 === denominator1) {
-            denominator2 = randomInteger(2, 12);
-        }
-
-        const numerator1 = randomInteger(
-            1,
-            denominator1 - 1
-        );
-        const numerator2 = randomInteger(
-            1,
-            denominator2 - 1
-        );
-        const result = addPercentages(
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2
-        );
-
-        return {
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["+"]
-        );
-
-        elements.question.textContent =
-            "Add the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Find a common denominator first.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 7/12."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Find a common denominator before adding."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 12: Subtract — different denominators
-// ==================================================
-
-registerPercentageGenerator(12, {
-    title: "Subtract: different denominators",
-
-    createProblem() {
-        let numerator1;
-        let denominator1;
-        let numerator2;
-        let denominator2;
-
-        do {
-            denominator1 = randomInteger(2, 12);
-            denominator2 = randomInteger(2, 12);
-            numerator1 = randomInteger(
-                1,
-                denominator1 - 1
-            );
-            numerator2 = randomInteger(
-                1,
-                denominator2 - 1
-            );
-        } while (
-            denominator1 === denominator2 ||
-            comparePercentages(
-                numerator1,
-                denominator1,
-                numerator2,
-                denominator2
-            ) <= 0
-        );
-
-        const result = subtractPercentages(
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2
-        );
-
-        return {
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["−"]
-        );
-
-        elements.question.textContent =
-            "Subtract the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Find a common denominator first.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 5/12."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Find a common denominator before subtracting."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 13: Add three percentages
-// ==================================================
-
-registerPercentageGenerator(13, {
-    title: "Add three percentages",
-
-    createProblem() {
-        const percentages = [];
-
-        for (let index = 0; index < 3; index += 1) {
-            const denominator = randomInteger(2, 10);
-            const numerator = randomInteger(
-                1,
-                denominator - 1
-            );
-
-            percentages.push({
-                numerator,
-                denominator
-            });
-        }
-
-        const firstSum = addPercentages(
-            percentages[0].numerator,
-            percentages[0].denominator,
-            percentages[1].numerator,
-            percentages[1].denominator
-        );
-
-        const result = addPercentages(
-            firstSum.numerator,
-            firstSum.denominator,
-            percentages[2].numerator,
-            percentages[2].denominator
-        );
-
-        return {
-            percentages,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            problem.percentages,
-            ["+", "+"]
-        );
-
-        elements.question.textContent =
-            "Add all three percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Use a common denominator.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 11/12."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Use a common denominator and add all three numerators."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 14: Whole number × percentage
-// ==================================================
-
-registerPercentageGenerator(14, {
-    title: "Whole number × percentage",
-
-    createProblem() {
-        const wholeNumber = randomInteger(2, 12);
-        const denominator = randomInteger(2, 12);
-        const numerator = randomInteger(
-            1,
-            denominator - 1
-        );
-        const result = multiplyPercentages(
-            wholeNumber,
-            1,
-            numerator,
-            denominator
-        );
-
-        return {
-            wholeNumber,
-            numerator,
-            denominator,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        elements.visual.replaceChildren();
-        elements.visual.style.display = "flex";
-        elements.visual.style.justifyContent = "center";
-        elements.visual.style.alignItems = "center";
-        elements.visual.style.gap = "22px";
-        elements.visual.style.marginBottom = "24px";
-
-        const whole = document.createElement("div");
-        whole.textContent = problem.wholeNumber;
-        whole.style.fontSize = "42px";
-        whole.style.fontWeight = "700";
-
-        const multiplication = document.createElement("div");
-        multiplication.textContent = "×";
-        multiplication.style.fontSize = "42px";
-        multiplication.style.fontWeight = "700";
-
-        elements.visual.appendChild(whole);
-        elements.visual.appendChild(multiplication);
-        elements.visual.appendChild(
-            createPercentageElement(
-                problem.numerator,
-                problem.denominator
-            )
-        );
-
-        elements.question.textContent =
-            "Multiply and simplify the answer.";
-
-        elements.example.textContent =
-            "Write the whole number as a percentage over 1.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 9/4."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Multiply the whole number by the numerator."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 15: Multiply two percentages
-// ==================================================
-
-registerPercentageGenerator(15, {
-    title: "Multiply two percentages",
-
-    createProblem() {
-        const denominator1 = randomInteger(2, 12);
-        const denominator2 = randomInteger(2, 12);
-        const numerator1 = randomInteger(
-            1,
-            denominator1 - 1
-        );
-        const numerator2 = randomInteger(
-            1,
-            denominator2 - 1
-        );
-        const result = multiplyPercentages(
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2
-        );
-
-        return {
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["×"]
-        );
-
-        elements.question.textContent =
-            "Multiply the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Multiply numerator by numerator and denominator by denominator.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 3/8."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Multiply the numerators and multiply the denominators."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 16: Percentage ÷ whole number
-// ==================================================
-
-registerPercentageGenerator(16, {
-    title: "Percentage ÷ whole number",
-
-    createProblem() {
-        const denominator = randomInteger(2, 12);
-        const numerator = randomInteger(
-            1,
-            denominator - 1
-        );
-        const wholeNumber = randomInteger(2, 10);
-        const result = dividePercentages(
-            numerator,
-            denominator,
-            wholeNumber,
-            1
-        );
-
-        return {
-            numerator,
-            denominator,
-            wholeNumber,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        elements.visual.replaceChildren();
-        elements.visual.style.display = "flex";
-        elements.visual.style.justifyContent = "center";
-        elements.visual.style.alignItems = "center";
-        elements.visual.style.gap = "22px";
-        elements.visual.style.marginBottom = "24px";
-
-        elements.visual.appendChild(
-            createPercentageElement(
-                problem.numerator,
-                problem.denominator
-            )
-        );
-
-        const division = document.createElement("div");
-        division.textContent = "÷";
-        division.style.fontSize = "42px";
-        division.style.fontWeight = "700";
-
-        const whole = document.createElement("div");
-        whole.textContent = problem.wholeNumber;
-        whole.style.fontSize = "42px";
-        whole.style.fontWeight = "700";
-
-        elements.visual.appendChild(division);
-        elements.visual.appendChild(whole);
-
-        elements.question.textContent =
-            "Divide and simplify the answer.";
-
-        elements.example.textContent =
-            "Multiply by the reciprocal of the whole number.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 1/12."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Multiply by the reciprocal of the whole number."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 17: Divide two percentages
-// ==================================================
-
-registerPercentageGenerator(17, {
-    title: "Divide two percentages",
-
-    createProblem() {
-        const denominator1 = randomInteger(2, 12);
-        const denominator2 = randomInteger(2, 12);
-        const numerator1 = randomInteger(
-            1,
-            denominator1 - 1
-        );
-        const numerator2 = randomInteger(
-            1,
-            denominator2 - 1
-        );
-        const result = dividePercentages(
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2
-        );
-
-        return {
-            numerator1,
-            denominator1,
-            numerator2,
-            denominator2,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [
-                {
-                    numerator: problem.numerator1,
-                    denominator: problem.denominator1
-                },
-                {
-                    numerator: problem.numerator2,
-                    denominator: problem.denominator2
-                }
-            ],
-            ["÷"]
-        );
-
-        elements.question.textContent =
-            "Divide the percentages and simplify the answer.";
-
-        elements.example.textContent =
-            "Keep the first percentage, change ÷ to ×, and flip the second percentage.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a percentage such as 5/6."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Multiply by the reciprocal of the second percentage."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 18: Improper percentage → mixed number
-// ==================================================
-
-registerPercentageGenerator(18, {
-    title: "Improper percentage → mixed number",
-
-    createProblem() {
-        const denominator = randomInteger(2, 12);
-        const wholeNumber = randomInteger(1, 8);
-        const remainder = randomInteger(
-            1,
-            denominator - 1
-        );
-        const numerator =
-            wholeNumber * denominator + remainder;
-
-        return {
-            numerator,
-            denominator,
-            wholeNumber,
-            remainder
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPercentageExpression(
-            elements.visual,
-            [{
-                numerator: problem.numerator,
-                denominator: problem.denominator
-            }]
-        );
-
-        elements.question.textContent =
-            "Convert the improper percentage to a mixed number.";
-
-        elements.example.textContent =
-            "Enter the answer like this: 2 1/3";
-    },
-
-    checkAnswer(context) {
-        const parsed = parseMixedNumber(
-            context.userAnswer
-        );
-
-        if (!parsed) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a mixed number such as 2 1/3."
-            };
-        }
-
-        const converted = mixedNumberToImproperPercentage(
-            parsed.wholeNumber,
-            parsed.numerator,
-            parsed.denominator
-        );
-
-        const correct = percentagesAreEquivalent(
-            converted.numerator,
-            converted.denominator,
-            context.problem.numerator,
-            context.problem.denominator
-        );
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Divide the numerator by the denominator."
-            };
-        }
-
-        return {
-            correct: true,
-            expectedAnswer: formatMixedNumber(
-                context.problem.wholeNumber,
-                context.problem.remainder,
-                context.problem.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 19: Mixed number → improper percentage
-// ==================================================
-
-registerPercentageGenerator(19, {
-    title: "Mixed number → improper percentage",
-
-    createProblem() {
-        const denominator = randomInteger(2, 12);
-        const wholeNumber = randomInteger(1, 8);
-        const numerator = randomInteger(
-            1,
-            denominator - 1
-        );
-        const result = mixedNumberToImproperPercentage(
-            wholeNumber,
-            numerator,
-            denominator
-        );
-
-        return {
-            wholeNumber,
-            numerator,
-            denominator,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        renderPlainExpression(
-            elements.visual,
-            `${problem.wholeNumber} ${problem.numerator}/${problem.denominator}`
-        );
-
-        elements.question.textContent =
-            "Convert the mixed number to an improper percentage.";
-
-        elements.example.textContent =
-            "Multiply the whole number by the denominator, then add the numerator.";
-    },
-
-    checkAnswer(context) {
-        const correct = checkPercentageEquivalentToExpected(
-            context.userAnswer,
-            context.problem.result.numerator,
-            context.problem.result.denominator
-        );
-
-        if (correct === null) {
-            return {
-                correct: false,
-                message:
-                    "Please enter an improper percentage such as 7/3."
-            };
-        }
-
-        if (!correct) {
-            return {
-                correct: false,
-                message:
-                    "Not quite. Multiply the whole number by the denominator, then add the numerator."
-            };
-        }
-
-        return {
-            correct: true,
-            simplifiedAnswer: formatPercentage(
-                context.problem.result.numerator,
-                context.problem.result.denominator
-            )
-        };
-    }
-});
-
-
-// ==================================================
-// GENERATOR 20: Percentage of a quantity
-// ==================================================
-
-registerPercentageGenerator(20, {
-    title: "Percentage of a quantity",
-
-    createProblem() {
-        const denominator = randomInteger(2, 12);
-        const numerator = randomInteger(
-            1,
-            denominator - 1
-        );
-        const multiplier = randomInteger(2, 12);
-        const quantity = denominator * multiplier;
-        const result = numerator * multiplier;
-
-        return {
-            numerator,
-            denominator,
-            quantity,
-            result
-        };
-    },
-
-    renderProblem(context) {
-        const { problem, elements } = context;
-
-        elements.visual.replaceChildren();
-        elements.visual.style.display = "flex";
-        elements.visual.style.justifyContent = "center";
-        elements.visual.style.alignItems = "center";
-        elements.visual.style.gap = "20px";
-        elements.visual.style.marginBottom = "24px";
-
-        elements.visual.appendChild(
-            createPercentageElement(
-                problem.numerator,
-                problem.denominator
-            )
-        );
-
-        const text = document.createElement("div");
-        text.textContent = `of ${problem.quantity}`;
-        text.style.fontSize = "42px";
-        text.style.fontWeight = "700";
-
-        elements.visual.appendChild(text);
-
-        elements.question.textContent =
-            "What is this percentage of the quantity?";
-
-        elements.example.textContent =
-            "Divide the quantity by the denominator, then multiply by the numerator.";
-    },
-
-    checkAnswer(context) {
-        const normalizedAnswer = context.userAnswer.trim();
-
-        if (!/^[+-]?\d+$/.test(normalizedAnswer)) {
-            return {
-                correct: false,
-                message:
-                    "Please enter a whole number."
-            };
-        }
-
-        if (Number(normalizedAnswer) === context.problem.result) {
+        if (
+            numbersAreClose(parts[0], context.problem.firstShare) &&
+            numbersAreClose(parts[1], context.problem.secondShare)
+        ) {
             return {
                 correct: true,
                 expectedAnswer:
-                    String(context.problem.result)
+                    `${formatNumber(context.problem.firstShare)}, ${formatNumber(context.problem.secondShare)}`
             };
         }
 
         return {
             correct: false,
             message:
-                "Not quite. Divide the quantity by the denominator, then multiply by the numerator."
+                "Not quite. Add the ratio parts, divide the total by that sum, then multiply."
         };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 16: Missing value in a ratio
+// ==================================================
+
+registerPercentageGenerator(16, {
+    title: "Missing value in a ratio",
+
+    createProblem() {
+        const first = randomInteger(1, 12);
+        const second = randomInteger(1, 12);
+        const multiplier = randomInteger(2, 10);
+        const missingPosition = randomItem([1, 2, 3, 4]);
+
+        const values = [
+            first,
+            second,
+            first * multiplier,
+            second * multiplier
+        ];
+
+        const display = values.map((value, index) => {
+            return index + 1 === missingPosition ? "?" : value;
+        });
+
+        return {
+            values,
+            missingPosition,
+            expected: values[missingPosition - 1],
+            problemText:
+                `${display[0]}:${display[1]} = ${display[2]}:${display[3]}`,
+            questionText: "Find the missing value.",
+            exampleText: "Use the same scale factor on both sides."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null || !Number.isInteger(answer)) {
+            return {
+                correct: false,
+                message: "Please enter a whole number."
+            };
+        }
+
+        if (answer === context.problem.expected) {
+            return {
+                correct: true,
+                expectedAnswer: String(context.problem.expected)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Use the same scale factor on both sides."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 17: Discounts
+// ==================================================
+
+registerPercentageGenerator(17, {
+    title: "Discounts",
+
+    createProblem() {
+        const originalPrice = randomInteger(2, 40) * 5;
+        const discount = randomItem([
+            5, 10, 15, 20, 25, 30, 40, 50
+        ]);
+        const salePrice =
+            originalPrice * (1 - discount / 100);
+
+        return {
+            originalPrice,
+            discount,
+            salePrice,
+            problemText:
+                `$${originalPrice} with ${discount}% off`,
+            questionText: "What is the sale price?",
+            exampleText: "Subtract the discount from the original price."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a price."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.salePrice)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `$${formatMoney(context.problem.salePrice)}`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Find the discount amount and subtract it from the original price."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 18: Sales tax / VAT
+// ==================================================
+
+registerPercentageGenerator(18, {
+    title: "Sales tax / VAT",
+
+    createProblem() {
+        const price = randomInteger(2, 40) * 5;
+        const taxRate = randomItem([
+            5, 7, 8, 10, 15, 20
+        ]);
+        const total = price * (1 + taxRate / 100);
+
+        return {
+            price,
+            taxRate,
+            total,
+            problemText:
+                `$${price} plus ${taxRate}% tax`,
+            questionText: "What is the total price?",
+            exampleText: "Add the tax amount to the original price."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter a price."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.total)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `$${formatMoney(context.problem.total)}`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Find the tax amount and add it to the original price."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 19: Simple interest
+// ==================================================
+
+registerPercentageGenerator(19, {
+    title: "Simple interest",
+
+    createProblem() {
+        const principal = randomInteger(2, 20) * 100;
+        const rate = randomItem([
+            2, 3, 4, 5, 6, 8, 10
+        ]);
+        const years = randomInteger(1, 10);
+        const interest = principal * rate / 100 * years;
+
+        return {
+            principal,
+            rate,
+            years,
+            interest,
+            problemText:
+                `$${principal} at ${rate}% for ${years} year${years === 1 ? "" : "s"}`,
+            questionText: "Find the simple interest.",
+            exampleText: "Interest = principal × rate × time."
+        };
+    },
+
+    checkAnswer(context) {
+        const answer = parseNumber(context.userAnswer);
+
+        if (answer === null) {
+            return {
+                correct: false,
+                message: "Please enter an amount."
+            };
+        }
+
+        if (numbersAreClose(answer, context.problem.interest)) {
+            return {
+                correct: true,
+                expectedAnswer:
+                    `$${formatMoney(context.problem.interest)}`
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Multiply principal × rate as a decimal × time."
+        };
+    }
+});
+
+
+// ==================================================
+// GENERATOR 20: Mixed Practice
+// ==================================================
+
+registerPercentageGenerator(20, {
+    title: "Mixed Practice",
+
+    createProblem() {
+        const selectedNumber = randomInteger(1, 19);
+        const selectedGenerator =
+            percentageGenerators.get(selectedNumber);
+        const selectedProblem =
+            selectedGenerator.createProblem();
+
+        return {
+            selectedNumber,
+            selectedGenerator,
+            selectedProblem
+        };
+    },
+
+    renderProblem(context) {
+        const selectedGenerator =
+            context.problem.selectedGenerator;
+        const selectedProblem =
+            context.problem.selectedProblem;
+
+        context.elements.title.textContent =
+            `Mixed Practice · ${selectedGenerator.title}`;
+
+        if (selectedGenerator.renderProblem) {
+            selectedGenerator.renderProblem({
+                problem: selectedProblem,
+                elements: context.elements,
+                helpers: percentageHelperFunctions
+            });
+            return;
+        }
+
+        const problemElement = context.elements.problem;
+        const questionElement = context.elements.question;
+        const exampleElement = context.elements.example;
+        const visualElement = context.elements.visual;
+
+        if (problemElement) {
+            problemElement.textContent =
+                selectedProblem.problemText || "";
+        }
+
+        if (questionElement) {
+            questionElement.textContent =
+                selectedProblem.questionText || "";
+        }
+
+        if (exampleElement) {
+            exampleElement.textContent =
+                selectedProblem.exampleText || "";
+        }
+
+        if (visualElement) {
+            visualElement.replaceChildren();
+        }
+    },
+
+    checkAnswer(context) {
+        return context.problem.selectedGenerator.checkAnswer({
+            userAnswer: context.userAnswer,
+            problem: context.problem.selectedProblem,
+            helpers: percentageHelperFunctions
+        });
+    },
+
+    formatCorrectFeedback(context) {
+        const selectedGenerator =
+            context.problem.selectedGenerator;
+
+        if (selectedGenerator.formatCorrectFeedback) {
+            return selectedGenerator.formatCorrectFeedback({
+                result: context.result,
+                problem: context.problem.selectedProblem,
+                helpers: percentageHelperFunctions
+            });
+        }
+
+        if (context.result.simplifiedAnswer) {
+            return `Correct. Simplified answer: ${context.result.simplifiedAnswer}`;
+        }
+
+        if (context.result.expectedAnswer) {
+            return `Correct. Answer: ${context.result.expectedAnswer}`;
+        }
+
+        return "Correct.";
+    },
+
+    formatIncorrectFeedback(context) {
+        const selectedGenerator =
+            context.problem.selectedGenerator;
+
+        if (selectedGenerator.formatIncorrectFeedback) {
+            return selectedGenerator.formatIncorrectFeedback({
+                result: context.result,
+                problem: context.problem.selectedProblem,
+                helpers: percentageHelperFunctions
+            });
+        }
+
+        return "Not quite. Try again.";
     }
 });
 
@@ -3237,3 +2122,8 @@ registerPercentageGenerator(20, {
 // ==================================================
 // ENDE DER DATEI
 // ==================================================
+'''
+
+out = Path("/mnt/data/percentagesjs.html")
+out.write_text(code, encoding="utf-8")
+print(out)
