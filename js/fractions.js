@@ -1616,7 +1616,161 @@ registerFractionGenerator(2, {
 // GENERATOR 03: Equivalent fractions
 // ==================================================
 
-// CODE FÜR GENERATOR 03 HIER EINFÜGEN
+registerFractionGenerator(3, {
+    title: "Equivalent fractions",
+
+    createProblem() {
+        const denominator = randomInteger(2, 12);
+        const numerator = randomInteger(1, denominator - 1);
+        const multiplier = randomInteger(2, 6);
+
+        const missingPart = randomItem([
+            "numerator",
+            "denominator"
+        ]);
+
+        const equivalentNumerator =
+            numerator * multiplier;
+
+        const equivalentDenominator =
+            denominator * multiplier;
+
+        return {
+            numerator,
+            denominator,
+            multiplier,
+            equivalentNumerator,
+            equivalentDenominator,
+            missingPart
+        };
+    },
+
+    renderProblem(context) {
+        const problem = context.problem;
+        const elements = context.elements;
+
+        elements.visual.replaceChildren();
+
+        elements.visual.style.display = "flex";
+        elements.visual.style.alignItems = "center";
+        elements.visual.style.justifyContent = "center";
+        elements.visual.style.gap = "22px";
+        elements.visual.style.flexWrap = "wrap";
+        elements.visual.style.marginBottom = "24px";
+        elements.visual.style.fontSize = "42px";
+        elements.visual.style.fontWeight = "700";
+
+        const firstFraction = document.createElement("div");
+        firstFraction.style.display = "inline-flex";
+        firstFraction.style.flexDirection = "column";
+        firstFraction.style.alignItems = "center";
+        firstFraction.style.minWidth = "80px";
+
+        const firstNumerator = document.createElement("div");
+        firstNumerator.textContent = problem.numerator;
+
+        const firstLine = document.createElement("div");
+        firstLine.style.width = "100%";
+        firstLine.style.height = "4px";
+        firstLine.style.background = "currentColor";
+        firstLine.style.margin = "5px 0";
+
+        const firstDenominator = document.createElement("div");
+        firstDenominator.textContent = problem.denominator;
+
+        firstFraction.appendChild(firstNumerator);
+        firstFraction.appendChild(firstLine);
+        firstFraction.appendChild(firstDenominator);
+
+        const equalsSign = document.createElement("div");
+        equalsSign.textContent = "=";
+
+        const secondFraction = document.createElement("div");
+        secondFraction.style.display = "inline-flex";
+        secondFraction.style.flexDirection = "column";
+        secondFraction.style.alignItems = "center";
+        secondFraction.style.minWidth = "80px";
+
+        const secondNumerator = document.createElement("div");
+
+        secondNumerator.textContent =
+            problem.missingPart === "numerator"
+                ? "?"
+                : problem.equivalentNumerator;
+
+        const secondLine = document.createElement("div");
+        secondLine.style.width = "100%";
+        secondLine.style.height = "4px";
+        secondLine.style.background = "currentColor";
+        secondLine.style.margin = "5px 0";
+
+        const secondDenominator = document.createElement("div");
+
+        secondDenominator.textContent =
+            problem.missingPart === "denominator"
+                ? "?"
+                : problem.equivalentDenominator;
+
+        secondFraction.appendChild(secondNumerator);
+        secondFraction.appendChild(secondLine);
+        secondFraction.appendChild(secondDenominator);
+
+        elements.visual.appendChild(firstFraction);
+        elements.visual.appendChild(equalsSign);
+        elements.visual.appendChild(secondFraction);
+
+        elements.question.textContent =
+            "Which number makes the fractions equivalent?";
+
+        elements.example.textContent =
+            "Multiply the numerator and denominator by the same number.";
+    },
+
+    checkAnswer(context) {
+        const problem = context.problem;
+        const normalizedAnswer = context.userAnswer.trim();
+
+        if (!/^[+-]?\d+$/.test(normalizedAnswer)) {
+            return {
+                correct: false,
+                message: "Please enter a whole number."
+            };
+        }
+
+        const userNumber = Number(normalizedAnswer);
+
+        const expectedAnswer =
+            problem.missingPart === "numerator"
+                ? problem.equivalentNumerator
+                : problem.equivalentDenominator;
+
+        if (userNumber === expectedAnswer) {
+            return {
+                correct: true,
+                expectedAnswer: String(expectedAnswer)
+            };
+        }
+
+        return {
+            correct: false,
+            message:
+                "Not quite. Multiply the numerator and denominator by the same number."
+        };
+    },
+
+    formatCorrectFeedback(context) {
+        return (
+            "Correct. Answer: " +
+            context.result.expectedAnswer
+        );
+    },
+
+    formatIncorrectFeedback() {
+        return (
+            "Not quite. Multiply the numerator and denominator by the same number."
+        );
+    }
+});
 
 
 
