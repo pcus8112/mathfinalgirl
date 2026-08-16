@@ -1,0 +1,403 @@
+<div id="gettysburg-campaign-map" class="campaign-map-root">
+  <div class="viz-controls" aria-label="Kartenansicht und Gefechtsauswahl">
+    <button type="button" class="btn btn-primary" data-view="overview" aria-pressed="true">Kampagnenübersicht</button>
+    <button type="button" class="btn" data-view="gettysburg" aria-pressed="false">Gettysburg-Detail</button>
+    <label class="form-label" for="battle-select">Gefechtsort
+      <select id="battle-select" class="form-select">
+        <option value="all">Alle Orte</option>
+        <option value="1">1 · Thoroughfare Gap</option>
+        <option value="2">2 · Furr Farm</option>
+        <option value="3">3 · Goose Creek</option>
+        <option value="4">4 · Ewell’s Chapel</option>
+        <option value="5">5 · Marsh Creek</option>
+        <option value="6">6 · Gettysburg</option>
+        <option value="7">7 · Little Round Top</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="campaign-map-stage">
+    <svg role="img" aria-labelledby="campaign-map-title campaign-map-desc">
+      <title id="campaign-map-title">Gefechtsorte der Gettysburg-Kampagne vom 17. Juni bis 3. Juli 1863</title>
+      <desc id="campaign-map-desc">Geografische Karte von Nordvirginia bis Gettysburg mit sieben nummerierten Gefechtsorten. Eine gestrichelte Linie im Gettysburg-Detail kennzeichnet den fiktiven Ansatz der Operation Southern Hook.</desc>
+      <g class="county-layer"></g>
+      <g class="state-layer"></g>
+      <g class="route-layer"></g>
+      <g class="hook-layer"></g>
+      <g class="place-layer"></g>
+      <g class="label-layer"></g>
+    </svg>
+    <div class="map-status" aria-live="polite">17. Juni – 3. Juli 1863</div>
+  </div>
+
+  <div class="map-key text-small" aria-label="Legende">
+    <span><i class="key-dot prelude"></i> Vorgefechte</span>
+    <span><i class="key-dot main"></i> Hauptschlacht</span>
+    <span><i class="key-dot focus"></i> Vertiefungsszenario</span>
+    <span><i class="key-sequence"></i> zeitliche Abfolge · keine Marschroute</span>
+    <span><i class="key-line"></i> Southern Hook · fiktiv</span>
+  </div>
+
+  <div class="card map-detail" aria-live="polite">
+    <div class="text-muted text-small">Ausgewählter Ort</div>
+    <div class="detail-name">Alle sieben Szenarien</div>
+    <div class="detail-copy text-small">Die ersten vier Gefechte liegen in Nordvirginia; Marsh Creek, Gettysburg und Little Round Top bilden die Pennsylvania-Gruppe.</div>
+  </div>
+</div>
+
+<style>
+  #gettysburg-campaign-map {
+    color: var(--foreground);
+    width: 100%;
+  }
+  #gettysburg-campaign-map .viz-controls {
+    margin-bottom: 0.75rem;
+  }
+  #gettysburg-campaign-map .viz-controls .form-label {
+    min-width: min(100%, 16rem);
+    margin: 0;
+  }
+  #gettysburg-campaign-map .campaign-map-stage {
+    position: relative;
+    width: 100%;
+    min-height: 390px;
+  }
+  #gettysburg-campaign-map svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+  }
+  #gettysburg-campaign-map .county {
+    fill: color-mix(in srgb, var(--muted) 48%, transparent);
+    stroke: color-mix(in srgb, var(--border) 70%, transparent);
+    stroke-width: 0.65;
+  }
+  #gettysburg-campaign-map .state-boundary {
+    fill: none;
+    stroke: var(--muted-foreground);
+    stroke-width: 1.35;
+  }
+  #gettysburg-campaign-map .campaign-route {
+    fill: none;
+    stroke: var(--muted-foreground);
+    stroke-width: 2;
+    stroke-dasharray: 3 5;
+    stroke-opacity: 0.7;
+  }
+  #gettysburg-campaign-map .hook-route {
+    fill: none;
+    stroke: var(--viz-series-4);
+    stroke-width: 3;
+    stroke-dasharray: 8 6;
+  }
+  #gettysburg-campaign-map .place-ring {
+    fill: var(--background);
+    stroke-width: 3;
+  }
+  #gettysburg-campaign-map .place-dot {
+    stroke: var(--background);
+    stroke-width: 1.5;
+  }
+  #gettysburg-campaign-map .place-number {
+    fill: var(--background);
+    font-weight: 500;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+  #gettysburg-campaign-map .place-leader {
+    stroke: var(--muted-foreground);
+    stroke-width: 1;
+  }
+  #gettysburg-campaign-map .place-label,
+  #gettysburg-campaign-map .region-label,
+  #gettysburg-campaign-map .hook-label {
+    fill: var(--foreground);
+    paint-order: stroke;
+    stroke: var(--background);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  #gettysburg-campaign-map .place-label {
+    font-weight: 500;
+  }
+  #gettysburg-campaign-map .region-label {
+    fill: var(--muted-foreground);
+    letter-spacing: 0.08em;
+  }
+  #gettysburg-campaign-map .hook-label {
+    fill: var(--foreground);
+  }
+  #gettysburg-campaign-map .is-dimmed {
+    opacity: 0.22;
+  }
+  #gettysburg-campaign-map .map-status {
+    position: absolute;
+    right: 0.4rem;
+    bottom: 0.4rem;
+    color: var(--muted-foreground);
+    background: color-mix(in srgb, var(--background) 88%, transparent);
+    padding: 0.2rem 0.4rem;
+  }
+  #gettysburg-campaign-map .map-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+    align-items: center;
+    margin: 0.55rem 0 0.75rem;
+    color: var(--muted-foreground);
+  }
+  #gettysburg-campaign-map .map-key span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  #gettysburg-campaign-map .key-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  #gettysburg-campaign-map .key-dot.prelude { background: var(--viz-series-1); }
+  #gettysburg-campaign-map .key-dot.main { background: var(--viz-series-2); }
+  #gettysburg-campaign-map .key-dot.focus { background: var(--viz-series-3); }
+  #gettysburg-campaign-map .key-line {
+    width: 1.5rem;
+    border-top: 3px dashed var(--viz-series-4);
+    display: inline-block;
+  }
+  #gettysburg-campaign-map .key-sequence {
+    width: 1.5rem;
+    border-top: 2px dotted var(--muted-foreground);
+    display: inline-block;
+  }
+  #gettysburg-campaign-map .map-detail {
+    padding: 0.75rem 0.9rem;
+  }
+  #gettysburg-campaign-map .detail-name {
+    font-weight: 500;
+    margin: 0.1rem 0;
+  }
+  @media (max-width: 480px) {
+    #gettysburg-campaign-map .campaign-map-stage { min-height: 430px; }
+    #gettysburg-campaign-map .map-status { display: none; }
+  }
+</style>
+
+<script type="module">
+  import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+  import * as topojson from "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm";
+  import us from "https://cdn.jsdelivr.net/npm/us-atlas@3.0.1/counties-10m.json/+esm";
+
+  const root = document.getElementById("gettysburg-campaign-map");
+  const svg = d3.select(root.querySelector("svg"));
+  const stage = root.querySelector(".campaign-map-stage");
+  const select = root.querySelector("#battle-select");
+  const detailName = root.querySelector(".detail-name");
+  const detailCopy = root.querySelector(".detail-copy");
+  const status = root.querySelector(".map-status");
+
+  const battles = [
+    { id: 1, name: "Thoroughfare Gap", date: "17. Juni 1863", lon: -77.710833, lat: 38.823333, kind: "prelude", location: "Bull Run Mountains bei Broad Run, Virginia", copy: "Duffiés 1st Rhode Island Cavalry drängte Vorposten aus Chambliss’ Verband zurück und zog weiter nach Middleburg." },
+    { id: 2, name: "Furr Farm", date: "17. Juni 1863", lon: -77.662500, lat: 38.991667, kind: "prelude", location: "Snickersville Turnpike nordwestlich von Aldie, Virginia", copy: "Der blutigste Abschnitt der Schlacht von Aldie; die 1st Massachusetts Cavalry geriet an der Straßenkurve zwischen Steinmauern unter schweres Feuer." },
+    { id: 3, name: "Goose Creek Bridge", date: "21. Juni 1863", lon: -77.818889, lat: 38.981667, kind: "prelude", location: "Zwischen Middleburg und Upperville, Virginia", copy: "Pleasontons Kräfte erzwangen den Übergang über die Steinbrücke und drängten Stuarts Kavallerie weiter in Richtung Upperville." },
+    { id: 4, name: "Ewell’s Chapel", date: "22. Juni 1863", lon: -77.629167, lat: 38.911944, kind: "prelude", location: "Nördlich von Haymarket, Virginia", copy: "Eine Unionsfalle mit der 17th Pennsylvania Cavalry als Köder scheiterte; Mosby und seine Rangers entkamen." },
+    { id: 5, name: "Marsh Creek", date: "26. Juni 1863", lon: -77.296500, lat: 39.849000, kind: "prelude", location: "Chambersburg Pike, rund fünf Kilometer westlich von Gettysburg", copy: "White’s 35th Virginia Cavalry Battalion vertrieb Vorposten der 26th Pennsylvania Emergency Militia und nahm Gefangene." },
+    { id: 6, name: "Gettysburg", date: "1.–3. Juli 1863", lon: -77.231100, lat: 39.830900, kind: "main", location: "Gettysburg und umliegendes Schlachtfeld, Pennsylvania", copy: "Dreitägige Hauptschlacht zwischen Lees Army of Northern Virginia und Meades Army of the Potomac." },
+    { id: 7, name: "Little Round Top", date: "2. Juli 1863", lon: -77.236700, lat: 39.790300, kind: "focus", location: "Südliches Ende der Unionsstellung bei Gettysburg", copy: "Vertiefungsszenario des Angriffs auf die linke Unionsflanke und Bezugspunkt der fiktiven Operation Southern Hook." }
+  ];
+
+  const selectedStateFips = new Set(["11", "24", "42", "51", "54"]);
+  const counties = topojson.feature(us, us.objects.counties).features.filter(d => selectedStateFips.has(String(d.id).padStart(5, "0").slice(0, 2)));
+  const states = topojson.feature(us, us.objects.states).features.filter(d => selectedStateFips.has(String(d.id).padStart(2, "0")));
+  const region = { type: "FeatureCollection", features: states };
+  const overviewBounds = { type: "Polygon", coordinates: [[[-78.18, 38.58], [-76.90, 38.58], [-76.90, 40.05], [-78.18, 40.05], [-78.18, 38.58]]] };
+  const gettysburgBounds = { type: "Polygon", coordinates: [[[-77.34, 39.745], [-77.16, 39.745], [-77.16, 39.89], [-77.34, 39.89], [-77.34, 39.745]]] };
+  const stateNames = [
+    { name: "PENNSYLVANIA", lon: -77.63, lat: 39.78 },
+    { name: "MARYLAND", lon: -77.60, lat: 39.37 },
+    { name: "VIRGINIA", lon: -77.55, lat: 38.73 },
+    { name: "WEST VIRGINIA", lon: -77.97, lat: 39.38 }
+  ];
+
+  const route = {
+    type: "LineString",
+    coordinates: battles.slice(0, 6).map(d => [d.lon, d.lat])
+  };
+  const hook = {
+    type: "LineString",
+    coordinates: [
+      [-77.270, 39.763],
+      [-77.250, 39.769],
+      [-77.237, 39.780],
+      [-77.2367, 39.7903]
+    ]
+  };
+
+  let view = "overview";
+  let active = "all";
+  let projection = d3.geoMercator();
+  let path = d3.geoPath(projection);
+
+  function pointColor(d) {
+    if (d.kind === "main") return "var(--viz-series-2)";
+    if (d.kind === "focus") return "var(--viz-series-3)";
+    return "var(--viz-series-1)";
+  }
+
+  function labelOffset(d, width) {
+    const compact = width < 500;
+    if (view === "gettysburg") {
+      if (d.id === 5) return compact ? [-66, -25] : [-86, -28];
+      if (d.id === 6) return compact ? [42, -22] : [54, -24];
+      return compact ? [40, 22] : [54, 24];
+    }
+    const offsets = {
+      1: compact ? [-78, 31] : [-103, 34],
+      2: compact ? [-65, -32] : [-94, -35],
+      3: compact ? [-82, -2] : [-111, -3],
+      4: compact ? [34, 23] : [47, 24],
+      5: compact ? [-65, -25] : [-86, -28],
+      6: compact ? [34, -3] : [48, -4],
+      7: compact ? [32, 29] : [48, 31]
+    };
+    return offsets[d.id];
+  }
+
+  function setDetails(id) {
+    active = id;
+    if (id === "all") {
+      detailName.textContent = "Alle sieben Szenarien";
+      detailCopy.textContent = "Die ersten vier Gefechte liegen in Nordvirginia; Marsh Creek, Gettysburg und Little Round Top bilden die Pennsylvania-Gruppe.";
+    } else {
+      const d = battles.find(item => String(item.id) === String(id));
+      detailName.textContent = `${d.id}. ${d.name} · ${d.date}`;
+      detailCopy.textContent = `${d.location}. ${d.copy}`;
+      if (d.id >= 5 && view !== "gettysburg") setView("gettysburg", false);
+      if (d.id <= 4 && view !== "overview") setView("overview", false);
+    }
+    render();
+  }
+
+  function setView(next, shouldRender = true) {
+    view = next;
+    root.querySelectorAll("[data-view]").forEach(button => {
+      const pressed = button.dataset.view === view;
+      button.setAttribute("aria-pressed", String(pressed));
+      button.classList.toggle("btn-primary", pressed);
+    });
+    status.textContent = view === "overview" ? "17. Juni – 3. Juli 1863" : "Gettysburg · 26. Juni – 3. Juli 1863";
+    if (shouldRender) render();
+  }
+
+  function render() {
+    const width = Math.max(320, Math.round(stage.getBoundingClientRect().width));
+    const height = width < 480 ? 430 : Math.min(560, Math.round(width * 0.72));
+    svg.attr("width", width).attr("height", height);
+    stage.style.height = `${height}px`;
+
+    const bounds = view === "overview" ? overviewBounds : gettysburgBounds;
+    projection = d3.geoMercator().fitExtent([[18, 18], [width - 18, height - 18]], bounds);
+    path = d3.geoPath(projection);
+
+    svg.select(".county-layer")
+      .selectAll("path")
+      .data(counties)
+      .join("path")
+      .attr("class", "county")
+      .attr("d", path);
+
+    svg.select(".state-layer")
+      .selectAll("path")
+      .data(states)
+      .join("path")
+      .attr("class", "state-boundary")
+      .attr("d", path);
+
+    svg.select(".route-layer")
+      .selectAll("path")
+      .data(view === "overview" ? [route] : [])
+      .join("path")
+      .attr("class", "campaign-route")
+      .attr("d", path);
+
+    const hookLayer = svg.select(".hook-layer");
+    hookLayer.selectAll("path")
+      .data(view === "gettysburg" ? [hook] : [])
+      .join("path")
+      .attr("class", "hook-route")
+      .attr("d", path);
+    hookLayer.selectAll("text")
+      .data(view === "gettysburg" ? [hook] : [])
+      .join("text")
+      .attr("class", "hook-label")
+      .attr("x", projection([-77.277, 39.758])[0])
+      .attr("y", projection([-77.277, 39.758])[1])
+      .attr("text-anchor", "start")
+      .text("Southern Hook · fiktiv");
+
+    const visibleBattles = view === "overview" ? battles : battles.filter(d => d.id >= 5);
+    const points = svg.select(".place-layer")
+      .selectAll("g.place")
+      .data(visibleBattles, d => d.id)
+      .join(enter => {
+        const g = enter.append("g").attr("class", "place");
+        g.append("circle").attr("class", "place-ring").attr("r", 11);
+        g.append("circle").attr("class", "place-dot").attr("r", 8.5);
+        g.append("text").attr("class", "place-number");
+        return g;
+      });
+
+    points
+      .attr("transform", d => `translate(${projection([d.lon, d.lat]).join(",")})`)
+      .classed("is-dimmed", d => active !== "all" && String(d.id) !== String(active));
+    points.select(".place-ring").attr("stroke", d => pointColor(d));
+    points.select(".place-dot").attr("fill", d => pointColor(d));
+    points.select(".place-number").text(d => d.id);
+
+    const labelData = visibleBattles.map(d => {
+      const [x, y] = projection([d.lon, d.lat]);
+      const [dx, dy] = labelOffset(d, width);
+      return { ...d, x, y, lx: x + dx, ly: y + dy };
+    });
+
+    svg.select(".label-layer")
+      .selectAll("line")
+      .data(labelData, d => d.id)
+      .join("line")
+      .attr("class", d => `place-leader ${active !== "all" && String(d.id) !== String(active) ? "is-dimmed" : ""}`)
+      .attr("x1", d => d.x)
+      .attr("y1", d => d.y)
+      .attr("x2", d => d.lx)
+      .attr("y2", d => d.ly - 4);
+
+    svg.select(".label-layer")
+      .selectAll("text.place-label")
+      .data(labelData, d => d.id)
+      .join("text")
+      .attr("class", d => `place-label ${active !== "all" && String(d.id) !== String(active) ? "is-dimmed" : ""}`)
+      .attr("x", d => d.lx)
+      .attr("y", d => d.ly)
+      .attr("text-anchor", d => d.lx < d.x ? "end" : "start")
+      .text(d => `${d.name} · ${d.date}`);
+
+    svg.select(".label-layer")
+      .selectAll("text.region-label")
+      .data(view === "overview" && width >= 520 ? stateNames : [], d => d.name)
+      .join("text")
+      .attr("class", "region-label")
+      .attr("x", d => projection([d.lon, d.lat])[0])
+      .attr("y", d => projection([d.lon, d.lat])[1])
+      .attr("text-anchor", "middle")
+      .text(d => d.name);
+  }
+
+  root.querySelectorAll("[data-view]").forEach(button => {
+    button.addEventListener("click", () => setView(button.dataset.view));
+  });
+  select.addEventListener("change", event => setDetails(event.target.value));
+
+  const resizeObserver = new ResizeObserver(() => render());
+  resizeObserver.observe(stage);
+  render();
+</script>
